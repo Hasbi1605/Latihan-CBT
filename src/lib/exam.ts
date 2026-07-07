@@ -162,6 +162,23 @@ async function loadAttemptOwned(attemptId: string, userId: string) {
   return attempt;
 }
 
+/** Menolak operasi jika subtes sudah selesai atau waktunya habis. */
+function assertSectionWritable(section: {
+  status: string;
+  mulaiAt: Date | null;
+  durasiDetik: number;
+}) {
+  if (section.status === "SELESAI") {
+    throw new ExamError("Subtes ini sudah selesai.", 409);
+  }
+  if (section.mulaiAt) {
+    const deadline = section.mulaiAt.getTime() + section.durasiDetik * 1000;
+    if (Date.now() >= deadline) {
+      throw new ExamError("Waktu subtes ini telah habis.", 409);
+    }
+  }
+}
+
 export type ActiveQuestion = {
   answerId: string;
   questionId: string;
@@ -247,13 +264,23 @@ export async function getAttemptState(
     }
   }
 
+  const sectionIds = attempt.sections.map((s) => s.id);
+  const answerCounts = await prisma.attemptAnswer.groupBy({
+    by: ["attemptSectionId"],
+    where: { attemptSectionId: { in: sectionIds } },
+    _count: { _all: true },
+  });
+  const countBySection = new Map(
+    answerCounts.map((c) => [c.attemptSectionId, c._count._all]),
+  );
+
   const sectionsOverview = attempt.sections.map((s) => ({
     id: s.id,
     kode: s.subtest.kode,
     nama: s.subtest.nama,
     urutan: s.urutan,
     status: s.status,
-    jumlah: 0,
+    jumlah: countBySection.get(s.id) ?? 0,
   }));
 
   if (attempt.status === "SELESAI") {
@@ -366,15 +393,7 @@ export async function saveAnswer(
   if (section.attempt.id !== attemptId || section.attempt.userId !== userId) {
     throw new ExamError("Akses ditolak.", 403);
   }
-  if (section.status === "SELESAI") {
-    throw new ExamError("Subtes ini sudah selesai.", 409);
-  }
-  if (section.mulaiAt) {
-    const deadline = section.mulaiAt.getTime() + section.durasiDetik * 1000;
-    if (Date.now() >= deadline) {
-      throw new ExamError("Waktu subtes ini telah habis.", 409);
-    }
-  }
+  assertSectionWritable(section);
   if (optionId !== null) {
     if (answer.question.tipe === "REKAMAN") {
       throw new ExamError("Soal rekaman tidak memakai opsi pilihan ganda.", 400);
@@ -427,8 +446,11 @@ export async function getResult(attemptId: string, userId: string) {
 
   const sections = await Promise.all(
     fresh.sections.map(async (s) => {
-      const total = await prisma.attemptAnswer.count({
-        where: { attemptSectionId: s.id },
+      const pgTotal = await prisma.attemptAnswer.count({
+        where: {
+          attemptSectionId: s.id,
+          question: { tipe: { not: "REKAMAN" } },
+        },
       });
       return {
         kode: s.subtest.kode,
@@ -437,8 +459,8 @@ export async function getResult(attemptId: string, userId: string) {
         benar: s.benar ?? 0,
         salah: s.salah ?? 0,
         kosong: s.kosong ?? 0,
-        total,
-        nilai: total > 0 ? Math.round(((s.benar ?? 0) / total) * 100) : 0,
+        total: pgTotal,
+        nilai: pgTotal > 0 ? Math.round(((s.benar ?? 0) / pgTotal) * 100) : 0,
       };
     }),
   );
@@ -621,6 +643,7 @@ export async function saveRecording(
   if (answer.question.tipe !== "REKAMAN") {
     throw new ExamError("Soal ini bukan tipe rekaman.", 400);
   }
+  assertSectionWritable(answer.attemptSection);
   await prisma.attemptRecording.upsert({
     where: {
       attemptSectionId_questionId: {

@@ -139,8 +139,12 @@ async function runBtqPackage() {
 
   const { json: result } = await req(`/api/attempts/${attemptId}/result`);
   assert(result.btqRecordings?.length > 0, "Harus ada rekaman BTQ");
+  assert(
+    result.nilaiTotal === 100,
+    `Skor PG paket BTQ harus 100%: ${result.totalBenar}/${result.totalSoal} = ${result.nilaiTotal}%`,
+  );
   console.log(
-    `✔ LATIHAN+BTQ selesai — ${result.btqRecordings.length} rekaman, nilai PG ${result.nilaiTotal}%`,
+    `✔ LATIHAN+BTQ selesai — ${result.btqRecordings.length} rekaman, nilai PG ${result.nilaiTotal}% (${result.totalBenar}/${result.totalSoal})`,
   );
 }
 

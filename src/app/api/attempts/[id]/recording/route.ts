@@ -4,6 +4,16 @@ import path from "path";
 import { getSessionUser } from "@/lib/auth";
 import { ExamError, saveRecording } from "@/lib/exam";
 
+const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_TYPES = new Set([
+  "audio/webm",
+  "audio/ogg",
+  "audio/wav",
+  "audio/x-wav",
+  "audio/mpeg",
+  "application/octet-stream", // beberapa browser kirim blob tanpa MIME spesifik
+]);
+
 export async function POST(
   req: Request,
   context: { params: Promise<{ id: string }> },
@@ -19,9 +29,25 @@ export async function POST(
     return NextResponse.json({ error: "answerId dan audio wajib." }, { status: 400 });
   }
 
+  if (file.size > MAX_BYTES) {
+    return NextResponse.json(
+      { error: `Ukuran audio maksimal ${MAX_BYTES / (1024 * 1024)} MB.` },
+      { status: 413 },
+    );
+  }
+
+  const mime = file.type || "application/octet-stream";
+  if (!ALLOWED_TYPES.has(mime)) {
+    return NextResponse.json(
+      { error: "Format audio tidak didukung. Gunakan WebM, OGG, atau WAV." },
+      { status: 415 },
+    );
+  }
+
+  const ext = mime.includes("ogg") ? "ogg" : mime.includes("wav") ? "wav" : "webm";
   const dir = path.join(process.cwd(), "uploads", id);
   await mkdir(dir, { recursive: true });
-  const filename = `${answerId}.webm`;
+  const filename = `${answerId}.${ext}`;
   const filepath = path.join(dir, filename);
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(filepath, buffer);

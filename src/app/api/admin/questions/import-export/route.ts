@@ -59,10 +59,19 @@ export async function POST(req: Request) {
   const subtests = await prisma.subtest.findMany();
   const byKode = new Map(subtests.map((s) => [s.kode, s.id]));
   let imported = 0;
+  const skipped: Array<{ index: number; reason: string }> = [];
 
-  for (const item of items) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
     const subtestId = byKode.get(item.subtestKode);
-    if (!subtestId || !item.teks) continue;
+    if (!subtestId) {
+      skipped.push({ index: i, reason: `subtestKode "${item.subtestKode}" tidak dikenal` });
+      continue;
+    }
+    if (!item.teks?.trim()) {
+      skipped.push({ index: i, reason: "teks soal kosong" });
+      continue;
+    }
     const tipe = item.tipe ?? "PG";
     await prisma.question.create({
       data: {
@@ -77,8 +86,8 @@ export async function POST(req: Request) {
         ...(tipe === "PG" && item.opsi
           ? {
               options: {
-                create: item.opsi.map((o, i) => ({
-                  label: String.fromCharCode(65 + i),
+                create: item.opsi.map((o, j) => ({
+                  label: String.fromCharCode(65 + j),
                   teks: o.teks,
                   isCorrect: Boolean(o.benar),
                 })),
@@ -90,5 +99,5 @@ export async function POST(req: Request) {
     imported++;
   }
 
-  return NextResponse.json({ imported, total: items.length });
+  return NextResponse.json({ imported, total: items.length, skipped });
 }

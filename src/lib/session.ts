@@ -1,8 +1,25 @@
 import { SignJWT, jwtVerify } from "jose";
 
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "dev-secret-cbt-uin-siber-ganti-di-produksi",
-);
+const DEV_FALLBACK = "dev-secret-cbt-uin-siber-ganti-di-produksi";
+let warnedMissingSecret = false;
+
+function resolveAuthSecret(): Uint8Array {
+  const value = process.env.AUTH_SECRET;
+  if (!value) {
+    if (process.env.NODE_ENV === "production" && !warnedMissingSecret) {
+      warnedMissingSecret = true;
+      console.error(
+        "[SECURITY] AUTH_SECRET belum diset. Wajib isi di produksi — lihat .env.example.",
+      );
+    }
+    return new TextEncoder().encode(DEV_FALLBACK);
+  }
+  return new TextEncoder().encode(value);
+}
+
+function secretKey() {
+  return resolveAuthSecret();
+}
 
 export const SESSION_COOKIE = "cbt_session";
 
@@ -20,14 +37,14 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(secret);
+    .sign(secretKey());
 }
 
 export async function verifySessionToken(
   token: string,
 ): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secretKey());
     if (
       typeof payload.userId === "string" &&
       typeof payload.role === "string" &&

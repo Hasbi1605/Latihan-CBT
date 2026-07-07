@@ -5,8 +5,7 @@ Aplikasi web **latihan simulasi Computer Based Test (CBT)** yang meniru pengalam
 latihan pribadi/edukatif — **tidak berafiliasi resmi** dengan UIN SSC.
 
 > Struktur mengacu pengumuman resmi SPMB Mandiri 2026 (mata ujian: **Tes Potensi Akademik,
-> Kebahasaan, Keislaman**) dan gaya soal UM-PTKIN (SSE). Dokumen PRD lengkap tersedia pada
-> pull request PRD terpisah.
+> Kebahasaan, Keislaman**) dan gaya soal UM-PTKIN (SSE). Dokumen PRD lengkap: [`docs/PRD-Simulasi-CBT-UIN-Siber-Cirebon.md`](docs/PRD-Simulasi-CBT-UIN-Siber-Cirebon.md).
 
 ## Status: Tahap 0–5 ✅
 
@@ -93,9 +92,16 @@ src/
 
 ## Konfigurasi
 
-- `AUTH_SECRET` (opsional): kunci JWT sesi — wajib di produksi.
-- Database SQLite: `prisma/dev.db`
-- Rekaman audio disimpan di `uploads/` (diabaikan git)
+- `AUTH_SECRET` (**wajib di produksi**): kunci penandatanganan sesi JWT. Server akan
+  mencetak peringatan keamanan jika tidak diset saat `NODE_ENV=production`. Lihat `.env.example`.
+- Database SQLite: `prisma/dev.db` — cocok untuk latihan pribadi, bukan multi-peserta skala besar.
+- Rekaman audio disimpan di `uploads/` (maks. 5 MB per file, format WebM/OGG/WAV).
+
+### Keamanan produksi
+
+- Ganti kredensial demo (`admin` / `1234567890`) sebelum deploy publik.
+- Set `AUTH_SECRET` ke string acak panjang (min. 32 karakter).
+- Gunakan HTTPS agar cookie sesi `secure` aktif.
 
 ---
 
