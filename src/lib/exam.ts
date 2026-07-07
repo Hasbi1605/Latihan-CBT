@@ -64,9 +64,14 @@ export async function startAttempt(
 
     let urutan = 1;
     for (const q of picked) {
+      const isRekam = q.tipe === "REKAMAN";
       const optionIds = q.options.map((o) => o.id);
-      const order = sec.acakOpsi ? shuffle(optionIds) : optionIds;
-      await prisma.attemptAnswer.create({
+      const order = isRekam
+        ? []
+        : sec.acakOpsi
+          ? shuffle(optionIds)
+          : optionIds;
+      const answer = await prisma.attemptAnswer.create({
         data: {
           attemptSectionId: attemptSection.id,
           questionId: q.id,
@@ -74,6 +79,15 @@ export async function startAttempt(
           optionOrderJson: JSON.stringify(order),
         },
       });
+      if (isRekam) {
+        await prisma.attemptRecording.create({
+          data: {
+            attemptSectionId: attemptSection.id,
+            questionId: q.id,
+            answerId: answer.id,
+          },
+        });
+      }
     }
   }
 
@@ -89,15 +103,17 @@ async function scoreSection(attemptSectionId: string) {
 
   let benar = 0;
   let dijawab = 0;
+  let pgTotal = 0;
   for (const a of answers) {
+    if (a.question.tipe === "REKAMAN") continue;
+    pgTotal++;
     if (a.pilihanOptionId) {
       dijawab++;
       const chosen = a.question.options.find((o) => o.id === a.pilihanOptionId);
       if (chosen?.isCorrect) benar++;
     }
   }
-  const total = answers.length;
-  const kosong = total - dijawab;
+  const kosong = pgTotal - dijawab;
   const salah = dijawab - benar;
 
   await prisma.attemptSection.update({
@@ -150,12 +166,16 @@ export type ActiveQuestion = {
   answerId: string;
   questionId: string;
   urutan: number;
+  tipe: string;
   subkategori: string | null;
   teks: string;
   arahTeks: string;
+  gambarUrl: string | null;
   options: { id: string; label: string; teks: string }[];
   pilihanOptionId: string | null;
   ragu: boolean;
+  audioUrl: string | null;
+  hasRecording: boolean;
 };
 
 export type AttemptState = {
@@ -163,6 +183,7 @@ export type AttemptState = {
   status: string;
   finished: boolean;
   packageNama: string;
+  tabSwitchCount: number;
   sections: {
     id: string;
     kode: string;
@@ -241,6 +262,7 @@ export async function getAttemptState(
       status: attempt.status,
       finished: true,
       packageNama: attempt.package.nama,
+      tabSwitchCount: attempt.tabSwitchCount,
       sections: sectionsOverview,
       active: null,
     };
@@ -253,6 +275,7 @@ export async function getAttemptState(
       status: attempt.status,
       finished: false,
       packageNama: attempt.package.nama,
+      tabSwitchCount: attempt.tabSwitchCount,
       sections: sectionsOverview,
       active: null,
     };
@@ -261,8 +284,17 @@ export async function getAttemptState(
   const answers = await prisma.attemptAnswer.findMany({
     where: { attemptSectionId: active.id },
     orderBy: { urutan: "asc" },
-    include: { question: { include: { options: true } } },
+    include: {
+      question: { include: { options: true } },
+    },
   });
+
+  const recordings = await prisma.attemptRecording.findMany({
+    where: { attemptSectionId: active.id },
+  });
+  const recByAnswer = new Map(
+    recordings.filter((r) => r.answerId).map((r) => [r.answerId!, r]),
+  );
 
   const questions: ActiveQuestion[] = answers.map((a) => {
     const order: string[] = JSON.parse(a.optionOrderJson);
@@ -275,16 +307,21 @@ export async function getAttemptState(
       })
       .filter((x): x is { id: string; label: string; teks: string } => x !== null);
 
+    const rec = recByAnswer.get(a.id);
     return {
       answerId: a.id,
       questionId: a.questionId,
       urutan: a.urutan,
+      tipe: a.question.tipe,
       subkategori: a.question.subkategori,
       teks: a.question.teks,
       arahTeks: a.question.arahTeks,
+      gambarUrl: a.question.gambarUrl,
       options,
       pilihanOptionId: a.pilihanOptionId,
       ragu: a.ragu,
+      audioUrl: rec?.audioUrl ?? null,
+      hasRecording: Boolean(rec?.audioUrl),
     };
   });
 
@@ -293,6 +330,7 @@ export async function getAttemptState(
     status: attempt.status,
     finished: false,
     packageNama: attempt.package.nama,
+    tabSwitchCount: attempt.tabSwitchCount,
     sections: sectionsOverview,
     active: {
       sectionId: active.id,
@@ -338,6 +376,9 @@ export async function saveAnswer(
     }
   }
   if (optionId !== null) {
+    if (answer.question.tipe === "REKAMAN") {
+      throw new ExamError("Soal rekaman tidak memakai opsi pilihan ganda.", 400);
+    }
     const valid = answer.question.options.some((o) => o.id === optionId);
     if (!valid) throw new ExamError("Opsi jawaban tidak valid.", 400);
   }
@@ -405,15 +446,32 @@ export async function getResult(attemptId: string, userId: string) {
   const totalSoal = sections.reduce((a, s) => a + s.total, 0);
   const totalBenar = sections.reduce((a, s) => a + s.benar, 0);
 
+  const recordings = await prisma.attemptRecording.findMany({
+    where: {
+      attemptSection: { attemptId: fresh.id },
+      audioUrl: { not: null },
+    },
+    include: { question: { select: { teks: true, subkategori: true } } },
+  });
+
   return {
     attemptId: fresh.id,
     packageNama: fresh.package.nama,
     mulaiAt: fresh.mulaiAt,
     selesaiAt: fresh.selesaiAt,
+    tabSwitchCount: fresh.tabSwitchCount,
     sections: sections.sort((a, b) => a.urutan - b.urutan),
     totalSoal,
     totalBenar,
     nilaiTotal: totalSoal > 0 ? Math.round((totalBenar / totalSoal) * 100) : 0,
+    btqRecordings: recordings.map((r) => ({
+      id: r.id,
+      subkategori: r.question.subkategori,
+      teks: r.question.teks.slice(0, 80),
+      audioUrl: r.audioUrl,
+      nilaiManual: r.nilaiManual,
+      dinilai: r.nilaiManual !== null,
+    })),
   };
 }
 
@@ -428,7 +486,37 @@ export async function getReview(attemptId: string, userId: string) {
         include: { question: { include: { options: true } } },
       });
 
+      const recordings = await prisma.attemptRecording.findMany({
+        where: { attemptSectionId: s.id },
+      });
+      const recByQ = new Map(recordings.map((r) => [r.questionId, r]));
+
       const soal = answers.map((a) => {
+        const isRekam = a.question.tipe === "REKAMAN";
+        const rec = recByQ.get(a.questionId);
+
+        if (isRekam) {
+          return {
+            urutan: a.urutan,
+            tipe: "REKAMAN" as const,
+            subkategori: a.question.subkategori,
+            teks: a.question.teks,
+            arahTeks: a.question.arahTeks,
+            pembahasan: a.question.pembahasan,
+            dijawab: Boolean(rec?.audioUrl),
+            dijawabBenar: false,
+            audioUrl: rec?.audioUrl ?? null,
+            nilaiManual: rec?.nilaiManual ?? null,
+            options: [] as Array<{
+              id: string;
+              label: string;
+              teks: string;
+              benar: boolean;
+              dipilih: boolean;
+            }>,
+          };
+        }
+
         const order: string[] = JSON.parse(a.optionOrderJson);
         const byId = new Map(a.question.options.map((o) => [o.id, o]));
         const options = order
@@ -450,12 +538,15 @@ export async function getReview(attemptId: string, userId: string) {
         );
         return {
           urutan: a.urutan,
+          tipe: "PG" as const,
           subkategori: a.question.subkategori,
           teks: a.question.teks,
           arahTeks: a.question.arahTeks,
           pembahasan: a.question.pembahasan,
           dijawab: Boolean(a.pilihanOptionId),
           dijawabBenar,
+          audioUrl: null as string | null,
+          nilaiManual: null as number | null,
           options,
         };
       });
@@ -485,9 +576,64 @@ export async function listAttempts(userId: string) {
   return attempts.map((a) => ({
     id: a.id,
     packageNama: a.package.nama,
+    packageMode: a.package.mode,
     status: a.status,
     mulaiAt: a.mulaiAt,
     selesaiAt: a.selesaiAt,
     skorTotal: a.skorTotal,
+    tabSwitchCount: a.tabSwitchCount,
   }));
+}
+
+export async function logTabSwitch(attemptId: string, userId: string) {
+  const attempt = await prisma.attempt.findUnique({ where: { id: attemptId } });
+  if (!attempt || attempt.userId !== userId) {
+    throw new ExamError("Akses ditolak.", 403);
+  }
+  if (attempt.status === "SELESAI") return attempt.tabSwitchCount;
+  const updated = await prisma.attempt.update({
+    where: { id: attemptId },
+    data: { tabSwitchCount: { increment: 1 } },
+  });
+  return updated.tabSwitchCount;
+}
+
+export async function saveRecording(
+  attemptId: string,
+  userId: string,
+  answerId: string,
+  audioUrl: string,
+) {
+  const answer = await prisma.attemptAnswer.findUnique({
+    where: { id: answerId },
+    include: {
+      question: true,
+      attemptSection: { include: { attempt: true } },
+    },
+  });
+  if (!answer) throw new ExamError("Jawaban tidak ditemukan.", 404);
+  if (
+    answer.attemptSection.attempt.id !== attemptId ||
+    answer.attemptSection.attempt.userId !== userId
+  ) {
+    throw new ExamError("Akses ditolak.", 403);
+  }
+  if (answer.question.tipe !== "REKAMAN") {
+    throw new ExamError("Soal ini bukan tipe rekaman.", 400);
+  }
+  await prisma.attemptRecording.upsert({
+    where: {
+      attemptSectionId_questionId: {
+        attemptSectionId: answer.attemptSectionId,
+        questionId: answer.questionId,
+      },
+    },
+    create: {
+      attemptSectionId: answer.attemptSectionId,
+      questionId: answer.questionId,
+      answerId,
+      audioUrl,
+    },
+    update: { audioUrl },
+  });
 }

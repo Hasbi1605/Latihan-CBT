@@ -9,7 +9,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <AppHeader nama={user.nama} nomorPeserta={user.nomorPeserta} />
+      <AppHeader nama={user.nama} nomorPeserta={user.nomorPeserta} role={user.role} />
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-8">
         <DashboardClient nama={user.nama} />
       </main>

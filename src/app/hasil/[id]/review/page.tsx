@@ -26,7 +26,7 @@ export default async function ReviewPage({
 
   return (
     <>
-      <AppHeader nama={user.nama} nomorPeserta={user.nomorPeserta} />
+      <AppHeader nama={user.nama} nomorPeserta={user.nomorPeserta} role={user.role} />
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8">
         <div className="flex items-center justify-between">
           <div>
@@ -60,18 +60,28 @@ export default async function ReviewPage({
                     </span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        !s.dijawab
-                          ? "bg-slate-100 text-slate-500"
-                          : s.dijawabBenar
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-red-50 text-red-700"
+                        s.tipe === "REKAMAN"
+                          ? s.dijawab
+                            ? "bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300"
+                            : "bg-slate-100 text-slate-500"
+                          : !s.dijawab
+                            ? "bg-slate-100 text-slate-500"
+                            : s.dijawabBenar
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-red-50 text-red-700"
                       }`}
                     >
-                      {!s.dijawab
-                        ? "Tidak dijawab"
-                        : s.dijawabBenar
-                          ? "Benar"
-                          : "Salah"}
+                      {s.tipe === "REKAMAN"
+                        ? s.dijawab
+                          ? s.nilaiManual !== null
+                            ? `Nilai BTQ: ${s.nilaiManual}`
+                            : "Rekaman terkirim"
+                          : "Belum direkam"
+                        : !s.dijawab
+                          ? "Tidak dijawab"
+                          : s.dijawabBenar
+                            ? "Benar"
+                            : "Salah"}
                     </span>
                   </div>
 
@@ -85,7 +95,14 @@ export default async function ReviewPage({
                   </div>
 
                   <div className="mt-3 space-y-2">
-                    {s.options.map((o) => {
+                    {s.tipe === "REKAMAN" ? (
+                      s.audioUrl ? (
+                        <audio controls src={s.audioUrl} className="w-full max-w-md" />
+                      ) : (
+                        <p className="text-sm text-slate-500">Tidak ada rekaman.</p>
+                      )
+                    ) : (
+                      s.options.map((o) => {
                       const ar = isArabic(o.teks);
                       let cls = "border-slate-200 bg-white text-slate-700";
                       if (o.benar)
@@ -115,7 +132,8 @@ export default async function ReviewPage({
                           )}
                         </div>
                       );
-                    })}
+                    })
+                    )}
                   </div>
 
                   {s.pembahasan && (

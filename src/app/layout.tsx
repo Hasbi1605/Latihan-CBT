@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Amiri } from "next/font/google";
+import { PreferencesProvider } from "@/components/PreferencesProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,8 +30,8 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${amiri.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
-        {children}
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+        <PreferencesProvider>{children}</PreferencesProvider>
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/ujian", "/hasil"];
+const PROTECTED_PREFIXES = ["/dashboard", "/ujian", "/hasil", "/admin"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -19,9 +19,15 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if ((pathname === "/login" || pathname === "/") && session) {
+  if (pathname.startsWith("/admin") && session && session.role !== "ADMIN") {
     const url = req.nextUrl.clone();
     url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  if ((pathname === "/login" || pathname === "/") && session) {
+    const url = req.nextUrl.clone();
+    url.pathname = session.role === "ADMIN" ? "/admin" : "/dashboard";
     url.search = "";
     return NextResponse.redirect(url);
   }
@@ -30,5 +36,12 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/dashboard/:path*", "/ujian/:path*", "/hasil/:path*"],
+  matcher: [
+    "/",
+    "/login",
+    "/dashboard/:path*",
+    "/ujian/:path*",
+    "/hasil/:path*",
+    "/admin/:path*",
+  ],
 };

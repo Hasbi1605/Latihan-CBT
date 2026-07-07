@@ -4,9 +4,9 @@ import type { SeedQuestion } from "./data/types";
 import { tpaQuestions } from "./data/tpa";
 import { bahasaQuestions } from "./data/bahasa";
 import { keislamanQuestions } from "./data/keislaman";
+import { btqQuestions } from "./data/btq";
 
 const prisma = new PrismaClient();
-
 const LABELS = ["A", "B", "C", "D", "E", "F"];
 
 async function insertSubtest(
@@ -21,30 +21,36 @@ async function insertSubtest(
   });
 
   for (const q of questions) {
+    const tipe = q.tipe ?? "PG";
     await prisma.question.create({
       data: {
         subtestId: subtest.id,
         subkategori: q.subkategori,
         teks: q.teks,
+        tipe,
         arahTeks: q.arahTeks ?? "LTR",
         tingkat: q.tingkat ?? "SEDANG",
         pembahasan: q.pembahasan,
-        options: {
-          create: q.opsi.map((o, i) => ({
-            label: LABELS[i],
-            teks: o.teks,
-            isCorrect: Boolean(o.benar),
-          })),
-        },
+        ...(tipe === "PG" && q.opsi
+          ? {
+              options: {
+                create: q.opsi.map((o, i) => ({
+                  label: LABELS[i],
+                  teks: o.teks,
+                  isCorrect: Boolean(o.benar),
+                })),
+              },
+            }
+          : {}),
       },
     });
   }
-
   return subtest;
 }
 
 async function main() {
-  console.log("Menghapus data lama (seed idempotent)...");
+  console.log("Menghapus data lama...");
+  await prisma.attemptRecording.deleteMany();
   await prisma.attemptAnswer.deleteMany();
   await prisma.attemptSection.deleteMany();
   await prisma.attempt.deleteMany();
@@ -55,7 +61,6 @@ async function main() {
   await prisma.subtest.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log("Membuat subtes & soal...");
   const tpa = await insertSubtest(
     "TPA",
     "Tes Potensi Akademik",
@@ -77,19 +82,24 @@ async function main() {
     3,
     keislamanQuestions,
   );
-
-  console.log(
-    `Jumlah soal — TPA: ${tpaQuestions.length}, Kebahasaan: ${bahasaQuestions.length}, Keislaman: ${keislamanQuestions.length}`,
+  await insertSubtest(
+    "BTQ",
+    "Baca Tulis Al-Qur'an",
+    "Teori tajwid + praktik bacaan (rekaman audio).",
+    4,
+    btqQuestions,
   );
 
-  console.log("Membuat paket ujian simulasi...");
-  const paket = await prisma.examPackage.create({
+  const pgBtq = btqQuestions.filter((q) => q.tipe === "PG").length;
+  const rekBtq = btqQuestions.filter((q) => q.tipe === "REKAMAN").length;
+
+  await prisma.examPackage.create({
     data: {
       nama: "Simulasi SPMB Mandiri UIN Siber Cirebon 2026",
       mode: "REPLIKA_2026",
       token: "UINSSC2026",
       deskripsi:
-        "Simulasi 3 subtes berurutan (TPA, Kebahasaan, Keislaman) dengan timer per-subtes, meniru struktur resmi SPMB Mandiri 2026. Jumlah soal & durasi bersifat estimasi dan dapat disesuaikan.",
+        "Replika resmi 2026: TPA, Kebahasaan, Keislaman (3 subtes). Tanpa BTQ terpisah.",
       aktif: true,
       sections: {
         create: [
@@ -122,7 +132,56 @@ async function main() {
     },
   });
 
-  console.log("Membuat akun demo...");
+  const btqSub = await prisma.subtest.findUnique({ where: { kode: "BTQ" } });
+  if (btqSub) {
+    await prisma.examPackage.create({
+      data: {
+        nama: "Latihan Lengkap + BTQ (Opsional)",
+        mode: "LATIHAN_LENGKAP",
+        token: "LATIHANBTQ",
+        deskripsi:
+          "Mode latihan lengkap: 3 subtes inti + subtes BTQ (teori + rekaman bacaan).",
+        aktif: true,
+        sections: {
+          create: [
+            {
+              subtestId: tpa.id,
+              urutan: 1,
+              jumlahSoal: 10,
+              durasiDetik: 15 * 60,
+              acakSoal: true,
+              acakOpsi: true,
+            },
+            {
+              subtestId: bahasa.id,
+              urutan: 2,
+              jumlahSoal: 10,
+              durasiDetik: 15 * 60,
+              acakSoal: true,
+              acakOpsi: true,
+            },
+            {
+              subtestId: keislaman.id,
+              urutan: 3,
+              jumlahSoal: 10,
+              durasiDetik: 15 * 60,
+              acakSoal: true,
+              acakOpsi: true,
+            },
+            {
+              subtestId: btqSub.id,
+              urutan: 4,
+              jumlahSoal: btqQuestions.length,
+              durasiDetik: 20 * 60,
+              acakSoal: false,
+              acakOpsi: false,
+            },
+          ],
+        },
+      },
+    });
+  }
+
   await prisma.user.create({
     data: {
       nama: "Peserta Demo",
@@ -141,10 +200,11 @@ async function main() {
   });
 
   console.log("\nSeed selesai ✔");
-  console.log(`Paket: ${paket.nama}`);
-  console.log("Token ujian   : UINSSC2026");
-  console.log("Login peserta : 1234567890 / password");
-  console.log("Login admin   : admin / admin123");
+  console.log(`Soal: TPA ${tpaQuestions.length}, BAHASA ${bahasaQuestions.length}, KEISLAMAN ${keislamanQuestions.length}, BTQ ${pgBtq} PG + ${rekBtq} rekaman`);
+  console.log("Paket REPLIKA_2026 token: UINSSC2026");
+  console.log("Paket LATIHAN_LENGKAP token: LATIHANBTQ");
+  console.log("Login peserta: 1234567890 / password");
+  console.log("Login admin: admin / admin123");
 }
 
 main()

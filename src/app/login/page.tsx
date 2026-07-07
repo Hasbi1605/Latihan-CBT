@@ -28,7 +28,15 @@ function LoginForm() {
         setError(data.error || "Gagal masuk.");
         return;
       }
-      router.replace(next);
+      const dest =
+        data.user?.role === "ADMIN"
+          ? next.startsWith("/admin")
+            ? next
+            : "/admin"
+          : next.startsWith("/admin")
+            ? "/dashboard"
+            : next;
+      router.replace(dest);
       router.refresh();
     } catch {
       setError("Terjadi kesalahan jaringan.");
@@ -39,29 +47,29 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-slate-200">
-        <h1 className="text-2xl font-bold text-slate-900">Masuk Peserta</h1>
-        <p className="mt-1 text-sm text-slate-500">
+      <div className="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Masuk</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Simulasi CBT SPMB Mandiri UIN Siber Cirebon
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Nomor Peserta
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Nomor Peserta / Admin
             </label>
             <input
               type="text"
               value={nomorPeserta}
               onChange={(e) => setNomorPeserta(e.target.value)}
               autoComplete="username"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
               placeholder="Contoh: 1234567890"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
               Kata Sandi
             </label>
             <input
@@ -69,14 +77,14 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
               placeholder="••••••••"
               required
             />
           </div>
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
               {error}
             </p>
           )}
@@ -90,9 +98,10 @@ function LoginForm() {
           </button>
         </form>
 
-        <div className="mt-6 rounded-lg bg-slate-50 p-3 text-xs text-slate-500">
-          <p className="font-medium text-slate-600">Akun demo:</p>
-          <p>Peserta — nomor: 1234567890 · sandi: password</p>
+        <div className="mt-6 rounded-lg bg-slate-50 p-3 text-xs text-slate-500 dark:bg-slate-900/50 dark:text-slate-400">
+          <p className="font-medium text-slate-600 dark:text-slate-300">Akun demo:</p>
+          <p>Peserta — 1234567890 / password</p>
+          <p>Admin — admin / admin123</p>
         </div>
       </div>
     </div>

@@ -39,19 +39,22 @@ model Subtest {
 }
 
 model Question {
-  id          String   @id @default(cuid())
-  subtestId   String
-  subtest     Subtest  @relation(fields: [subtestId], references: [id], onDelete: Cascade)
-  subkategori String? // Verbal/Figural/Kuantitatif, Indonesia/Inggris/Arab, Quran-Hadis/Fikih/Akhlak/SKI
-  teks        String
-  arahTeks    String   @default("LTR") // LTR atau RTL (untuk teks Arab)
-  gambarUrl   String?
-  pembahasan  String?
-  tingkat     String   @default("SEDANG") // MUDAH, SEDANG, SULIT
-  createdAt   DateTime @default(now())
+  id             String   @id @default(cuid())
+  subtestId      String
+  subtest        Subtest  @relation(fields: [subtestId], references: [id], onDelete: Cascade)
+  subkategori    String?
+  teks           String
+  tipe           String   @default("PG") // PG | REKAMAN
+  arahTeks       String   @default("LTR")
+  gambarUrl      String?
+  audioPromptUrl String?
+  pembahasan     String?
+  tingkat        String   @default("SEDANG")
+  createdAt      DateTime @default(now())
 
-  options Option[]
-  answers AttemptAnswer[]
+  options    Option[]
+  answers    AttemptAnswer[]
+  recordings AttemptRecording[]
 }
 
 model Option {
@@ -90,16 +93,17 @@ model ExamPackageSection {
 }
 
 model Attempt {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  packageId String
-  package   ExamPackage @relation(fields: [packageId], references: [id])
-  status    String    @default("BERLANGSUNG") // BERLANGSUNG, SELESAI
-  mulaiAt   DateTime  @default(now())
-  selesaiAt DateTime?
-  skorTotal Float?
-  createdAt DateTime  @default(now())
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId      String
+  package        ExamPackage @relation(fields: [packageId], references: [id])
+  status         String    @default("BERLANGSUNG")
+  mulaiAt        DateTime  @default(now())
+  selesaiAt      DateTime?
+  skorTotal      Float?
+  tabSwitchCount Int       @default(0)
+  createdAt      DateTime  @default(now())
 
   sections AttemptSection[]
 }
@@ -120,7 +124,27 @@ model AttemptSection {
   kosong      Int?
   skor        Float?
 
-  answers AttemptAnswer[]
+  answers    AttemptAnswer[]
+  recordings AttemptRecording[]
+}
+
+model AttemptRecording {
+  id               String   @id @default(cuid())
+  attemptSectionId String
+  attemptSection   AttemptSection @relation(fields: [attemptSectionId], references: [id], onDelete: Cascade)
+  questionId       String
+  question         Question @relation(fields: [questionId], references: [id])
+  answerId         String?  @unique
+  audioUrl         String?
+  nilaiManual      Float?
+  rubrikKelancaran Int?
+  rubrikTajwid     Int?
+  rubrikMakhraj    Int?
+  catatanPenguji   String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([attemptSectionId, questionId])
 }
 
 model AttemptAnswer {

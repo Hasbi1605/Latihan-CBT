@@ -12,11 +12,26 @@
   --font-arabic: var(--font-arabic), "Amiri", "Scheherazade New", serif;
 }
 
+html.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  color-scheme: dark;
+}
+
+html[data-font-size="sm"] .exam-text {
+  font-size: 0.95rem;
+}
+html[data-font-size="md"] .exam-text {
+  font-size: 1.125rem;
+}
+html[data-font-size="lg"] .exam-text {
+  font-size: 1.35rem;
+}
+
 body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
-/* Teks Arab (RTL) */
 .arabic,
 [dir="rtl"] {
   font-family: var(--font-arabic), "Amiri", "Scheherazade New", serif;
@@ -30,4 +45,10 @@ body {
 .arabic {
   font-size: 1.35em;
   line-height: 2;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
 }
