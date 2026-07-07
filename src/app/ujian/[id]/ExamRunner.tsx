@@ -2,7 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Mic,
+  Square,
+  Star,
+} from "lucide-react";
 import { ExamPrefsToolbar } from "@/components/PreferencesProvider";
+import { Button } from "@/components/ui/Button";
+import { Dialog } from "@/components/ui/Dialog";
+import { cn } from "@/lib/cn";
 
 type Opt = { id: string; label: string; teks: string };
 type Question = {
@@ -112,38 +124,33 @@ function RecordingPanel({
   }
 
   return (
-    <div className="mt-6 space-y-3 rounded-lg border border-violet-200 bg-violet-50 p-4 dark:border-violet-800 dark:bg-violet-950/30">
-      <p className="text-sm font-semibold text-violet-800 dark:text-violet-200">
+    <div className="mt-6 space-y-3 rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)] p-4">
+      <p className="text-sm font-semibold text-[var(--foreground)]">
         Soal Bacaan — Rekam suara bacaan Al-Qur&apos;an
       </p>
       {question.audioUrl && (
         <div>
-          <p className="mb-1 text-xs text-slate-500">Rekaman tersimpan:</p>
+          <p className="mb-1 text-xs text-[var(--muted-foreground)]">Rekaman tersimpan:</p>
           <audio controls src={question.audioUrl} className="w-full" />
         </div>
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {!recording ? (
-          <button
-            type="button"
-            onClick={mulaiRekam}
-            disabled={uploading}
-            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-60"
-          >
-            {question.hasRecording ? "Rekam Ulang" : "🎙 Mulai Rekam"}
-          </button>
+          <Button size="sm" onClick={mulaiRekam} disabled={uploading}>
+            <Mic className="h-4 w-4" />
+            {question.hasRecording ? "Rekam Ulang" : "Mulai Rekam"}
+          </Button>
         ) : (
-          <button
-            type="button"
-            onClick={stopRekam}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
-          >
-            ⏹ Stop & Unggah
-          </button>
+          <Button size="sm" variant="danger" onClick={stopRekam}>
+            <Square className="h-4 w-4" />
+            Stop & Unggah
+          </Button>
         )}
-        {uploading && <span className="text-sm text-slate-500">Mengunggah…</span>}
+        {uploading && (
+          <span className="text-sm text-[var(--muted-foreground)]">Mengunggah…</span>
+        )}
       </div>
-      {err && <p className="text-sm text-red-600 dark:text-red-400">{err}</p>}
+      {err && <p className="text-sm text-[var(--danger)]">{err}</p>}
     </div>
   );
 }
@@ -198,7 +205,6 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
     return () => clearInterval(t);
   }, []);
 
-  // Deteksi tab blur / pindah jendela
   useEffect(() => {
     if (!state?.active) return;
     function logBlur() {
@@ -302,13 +308,10 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
     return (
       <main className="flex flex-1 items-center justify-center p-8">
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 text-center shadow-[var(--shadow-card)]">
-          <p className="text-red-600 dark:text-red-400">{error}</p>
-          <button
-            onClick={() => router.replace("/dashboard")}
-            className="mt-4 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-foreground)]"
-          >
+          <p className="text-[var(--danger)]">{error}</p>
+          <Button className="mt-4" onClick={() => router.replace("/dashboard")}>
             Kembali ke Dashboard
-          </button>
+          </Button>
         </div>
       </main>
     );
@@ -317,7 +320,7 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
   if (!state?.active || transisi) {
     return (
       <main className="flex flex-1 items-center justify-center p-8">
-        <p className="text-slate-500">
+        <p className="text-[var(--muted-foreground)]">
           {transisi ? "Menyimpan & memuat subtes berikutnya…" : "Memuat ujian…"}
         </p>
       </main>
@@ -331,48 +334,52 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
   const low = remaining <= 60;
 
   return (
-    <main className="flex flex-1 flex-col bg-[var(--background)]">
+    <main className="flex flex-1 flex-col bg-[var(--background)] text-[var(--foreground)]">
       <div className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="min-w-0">
             <p className="truncate text-xs text-[var(--muted-foreground)]">{state.packageNama}</p>
-            <p className="truncate font-semibold">
+            <p className="truncate font-semibold text-[var(--foreground)]">
               Subtes {active.urutan}/{active.totalSections}: {active.nama}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <ExamPrefsToolbar />
             <div
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 font-mono text-lg font-bold tabular-nums ${
+              className={cn(
+                "flex items-center gap-2 rounded-xl px-4 py-2 font-mono text-lg font-bold tabular-nums",
                 low
-                  ? "bg-red-500/15 text-red-600 dark:text-red-300"
-                  : "bg-[var(--primary)]/15 text-[var(--primary)]"
-              }`}
+                  ? "bg-[var(--danger-soft)] text-[var(--danger)]"
+                  : "bg-[var(--primary-soft)] text-[var(--primary)]",
+              )}
               aria-live="polite"
             >
-              <span aria-hidden>⏱</span>
+              <Clock className="h-5 w-5" aria-hidden />
               {fmt(remaining)}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-4 py-6 lg:grid-cols-[1fr_20rem]">
-        <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-card)]">
-          <div className="flex items-center justify-between">
-            <span className="rounded-full bg-[var(--muted)] px-3 py-1 text-sm font-semibold">
+      <div className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-4 py-6 lg:grid-cols-[1fr_18rem]">
+        <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 text-[var(--card-foreground)] shadow-[var(--shadow-card)]">
+          <div className="flex items-center justify-between gap-3">
+            <span className="rounded-full bg-[var(--muted)] px-3 py-1 text-sm font-semibold text-[var(--foreground)]">
               Soal {q.urutan} / {active.questions.length}
               {q.tipe === "REKAMAN" && " · Rekaman"}
             </span>
             {q.subkategori && (
-              <span className="text-xs text-slate-400">{q.subkategori}</span>
+              <span className="text-xs font-medium text-[var(--muted-foreground)]">
+                {q.subkategori}
+              </span>
             )}
           </div>
 
           <div
-            className={`exam-text mt-4 whitespace-pre-line leading-relaxed text-slate-900 dark:text-slate-100 ${
-              q.arahTeks === "RTL" || isArabic(q.teks) ? "arabic" : ""
-            }`}
+            className={cn(
+              "exam-text mt-5 whitespace-pre-line leading-relaxed",
+              q.arahTeks === "RTL" || isArabic(q.teks) ? "arabic" : "",
+            )}
             dir={q.arahTeks === "RTL" || isArabic(q.teks) ? "rtl" : "ltr"}
           >
             {q.teks}
@@ -383,7 +390,7 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
             <img
               src={q.gambarUrl}
               alt="Ilustrasi soal"
-              className="mt-4 max-h-64 rounded-lg border border-slate-200 dark:border-slate-600"
+              className="mt-4 max-h-64 rounded-xl border border-[var(--border)]"
             />
           )}
 
@@ -394,30 +401,36 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
               onUploaded={(url) => onRecordingUploaded(q.answerId, url)}
             />
           ) : (
-            <div className="mt-6 space-y-3">
+            <div className="mt-6 space-y-2.5">
               {q.options.map((o) => {
                 const selected = q.pilihanOptionId === o.id;
                 const ar = isArabic(o.teks);
                 return (
                   <button
                     key={o.id}
+                    type="button"
                     onClick={() => pilihJawaban(q, selected ? null : o.id)}
-                    className={`flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition ${
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition",
                       selected
-                        ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200 dark:bg-emerald-950/30 dark:ring-emerald-800"
-                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:hover:bg-slate-800"
-                    }`}
+                        ? "border-[var(--success-border)] bg-[var(--success-soft)] ring-2 ring-[var(--success-border)]/40"
+                        : "border-[var(--exam-option-border)] bg-[var(--exam-option)] text-[var(--foreground)] hover:border-[var(--primary-border)] hover:bg-[var(--exam-option-hover)]",
+                    )}
                   >
                     <span
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                      className={cn(
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold",
                         selected
-                          ? "bg-emerald-600 text-white"
-                          : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
-                      }`}
+                          ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                          : "bg-[var(--muted)] text-[var(--muted-foreground)]",
+                      )}
                     >
                       {o.label}
                     </span>
-                    <span className={ar ? "arabic" : ""} dir={ar ? "rtl" : "ltr"}>
+                    <span
+                      className={cn("text-[var(--foreground)]", ar && "arabic")}
+                      dir={ar ? "rtl" : "ltr"}
+                    >
                       {o.teks}
                     </span>
                   </button>
@@ -426,51 +439,56 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
             </div>
           )}
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-700">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] pt-5">
             {q.tipe !== "REKAMAN" && (
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => toggleRagu(q)}
-                className={`rounded-lg border px-4 py-2 text-sm font-medium transition ${
-                  q.ragu
-                    ? "border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-950/30"
-                    : "border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
-                }`}
+                className={cn(
+                  q.ragu &&
+                    "border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning)]",
+                )}
               >
-                {q.ragu ? "★ Ditandai ragu-ragu" : "☆ Tandai ragu-ragu"}
-              </button>
+                <Star className={cn("h-4 w-4", q.ragu && "fill-current")} />
+                {q.ragu ? "Ditandai ragu-ragu" : "Tandai ragu-ragu"}
+              </Button>
             )}
             <div className="ml-auto flex gap-2">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setIdx((i) => Math.max(0, i - 1))}
                 disabled={idx === 0}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
               >
-                ← Sebelumnya
-              </button>
-              <button
-                onClick={() =>
-                  setIdx((i) => Math.min(active.questions.length - 1, i + 1))
-                }
+                <ChevronLeft className="h-4 w-4" />
+                Sebelumnya
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setIdx((i) => Math.min(active.questions.length - 1, i + 1))}
                 disabled={idx === active.questions.length - 1}
-                className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900 disabled:opacity-40 dark:bg-slate-600"
               >
-                Selanjutnya →
-              </button>
+                Selanjutnya
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </section>
 
-        <aside className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-20 lg:self-start">
-          <h3 className="text-sm font-semibold">Navigasi Soal</h3>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
-            <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded bg-emerald-500" /> Terjawab
+        <aside className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 text-[var(--card-foreground)] shadow-[var(--shadow-card)] lg:sticky lg:top-20 lg:self-start">
+          <h3 className="text-sm font-semibold text-[var(--foreground)]">Navigasi Soal</h3>
+          <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--muted-foreground)]">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-3 w-3 rounded bg-[var(--success)]" />
+              Terjawab
             </span>
-            <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded bg-amber-400" /> Ragu
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-3 w-3 rounded bg-[var(--warning)]" />
+              Ragu
             </span>
-            <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900" />{" "}
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-3 w-3 rounded border border-[var(--border)] bg-[var(--exam-option)]" />
               Kosong
             </span>
           </div>
@@ -478,17 +496,21 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
           <div className="mt-4 grid grid-cols-6 gap-2 lg:grid-cols-5">
             {active.questions.map((x, i) => {
               const isCur = i === idx;
-              let cls = "border border-slate-300 bg-white text-slate-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300";
-              if (x.ragu) cls = "bg-amber-400 text-white border-amber-400";
+              let cls =
+                "border border-[var(--exam-option-border)] bg-[var(--exam-option)] text-[var(--foreground)]";
+              if (x.ragu) cls = "border-[var(--warning)] bg-[var(--warning)] text-white";
               else if (isAnswered(x))
-                cls = "bg-emerald-500 text-white border-emerald-500";
+                cls = "border-[var(--success)] bg-[var(--success)] text-white";
               return (
                 <button
                   key={x.answerId}
+                  type="button"
                   onClick={() => setIdx(i)}
-                  className={`h-9 rounded text-sm font-semibold transition ${cls} ${
-                    isCur ? "ring-2 ring-slate-800 ring-offset-1 dark:ring-slate-300" : ""
-                  }`}
+                  className={cn(
+                    "h-9 rounded-lg text-sm font-semibold transition",
+                    cls,
+                    isCur && "ring-2 ring-[var(--foreground)] ring-offset-2 ring-offset-[var(--card)]",
+                  )}
                 >
                   {x.urutan}
                 </button>
@@ -496,68 +518,56 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
             })}
           </div>
 
-          <div className="mt-4 space-y-1 text-sm text-slate-500">
+          <div className="mt-4 space-y-1 text-sm text-[var(--muted-foreground)]">
             <p>
               Terjawab:{" "}
-              <strong className="text-slate-700 dark:text-slate-200">
+              <strong className="text-[var(--foreground)]">
                 {terjawab}/{active.questions.length}
               </strong>
             </p>
-            {raguCount > 0 && <p className="text-amber-600">Ragu-ragu: {raguCount}</p>}
+            {raguCount > 0 && (
+              <p className="text-[var(--warning)]">Ragu-ragu: {raguCount}</p>
+            )}
             {state.tabSwitchCount > 0 && (
-              <p className="text-amber-600">⚠ Tab blur: {state.tabSwitchCount}×</p>
+              <p className="flex items-center gap-1 text-[var(--warning)]">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                Tab blur: {state.tabSwitchCount}×
+              </p>
             )}
           </div>
 
-          <button
-            onClick={() => setShowConfirm(true)}
-            className="mt-5 w-full rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] hover:brightness-110"
-          >
+          <Button className="mt-5 w-full" onClick={() => setShowConfirm(true)}>
             {active.urutan === active.totalSections
               ? "Selesaikan Ujian"
               : "Selesai & Lanjut Subtes"}
-          </button>
+          </Button>
         </aside>
       </div>
 
-      {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-card-hover)]">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              Akhiri subtes {active.nama}?
-            </h3>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              Kamu sudah menjawab <strong>{terjawab}</strong> dari{" "}
-              <strong>{active.questions.length}</strong> soal.
-              {terjawab < active.questions.length && (
-                <> Masih ada {active.questions.length - terjawab} soal kosong.</>
-              )}
-              {raguCount > 0 && <> Masih ada {raguCount} soal ditandai ragu-ragu.</>}
-              <br />
-              <span className="mt-2 block text-slate-500">
-                Subtes yang telah diselesaikan tidak dapat dibuka kembali.
-              </span>
-            </p>
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300"
-              >
-                Batal
-              </button>
-              <button
-                onClick={() => {
-                  setShowConfirm(false);
-                  submitSection(active.sectionId);
-                }}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-              >
-                Ya, Akhiri
-              </button>
-            </div>
-          </div>
+      <Dialog
+        open={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        title={`Akhiri subtes ${active.nama}?`}
+        description={`Kamu sudah menjawab ${terjawab} dari ${active.questions.length} soal.${
+          terjawab < active.questions.length
+            ? ` Masih ada ${active.questions.length - terjawab} soal kosong.`
+            : ""
+        }${raguCount > 0 ? ` Masih ada ${raguCount} soal ditandai ragu-ragu.` : ""} Subtes yang telah diselesaikan tidak dapat dibuka kembali.`}
+      >
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={() => setShowConfirm(false)}>
+            Batal
+          </Button>
+          <Button
+            onClick={() => {
+              setShowConfirm(false);
+              submitSection(active.sectionId);
+            }}
+          >
+            Ya, Akhiri
+          </Button>
         </div>
-      )}
+      </Dialog>
     </main>
   );
 }

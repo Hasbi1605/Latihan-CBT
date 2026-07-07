@@ -5,9 +5,10 @@ import { getSessionUser } from "@/lib/auth";
 import AppHeader from "@/components/AppHeader";
 import { ExamError, getReview } from "@/lib/exam";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonSizes, buttonVariants } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/StatCard";
+import { cn } from "@/lib/cn";
 
 const ARABIC_RE = /[\u0600-\u06FF]/;
 const isArabic = (s: string) => ARABIC_RE.test(s);
@@ -37,114 +38,131 @@ export default async function ReviewPage({
           eyebrow="Pembahasan"
           title={review.packageNama}
           action={
-            <Link href={`/hasil/${id}`}>
-              <Button variant="secondary" size="sm">
-                <ArrowLeft className="h-4 w-4" />
-                Hasil
-              </Button>
+            <Link
+              href={`/hasil/${id}`}
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition",
+                buttonVariants.secondary,
+                buttonSizes.sm,
+              )}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Hasil
             </Link>
           }
         />
 
         {review.sections.map((sec) => (
           <section key={sec.kode} className="mt-8">
-            <h2 className="mb-3 border-b border-[var(--border)] pb-2 text-lg font-bold">
+            <h2 className="mb-3 border-b border-[var(--border)] pb-2 text-lg font-bold text-[var(--foreground)]">
               {sec.nama}
             </h2>
             <div className="space-y-4">
               {sec.soal.map((s) => (
                 <Card key={s.urutan}>
                   <CardBody>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-slate-700">
-                      Soal {s.urutan}
-                    </span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        s.tipe === "REKAMAN"
-                          ? s.dijawab
-                            ? "bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300"
-                            : "bg-slate-100 text-slate-500"
-                          : !s.dijawab
-                            ? "bg-slate-100 text-slate-500"
-                            : s.dijawabBenar
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-red-50 text-red-700"
-                      }`}
-                    >
-                      {s.tipe === "REKAMAN"
-                        ? s.dijawab
-                          ? s.nilaiManual !== null
-                            ? `Nilai BTQ: ${s.nilaiManual}`
-                            : "Rekaman terkirim"
-                          : "Belum direkam"
-                        : !s.dijawab
-                          ? "Tidak dijawab"
-                          : s.dijawabBenar
-                            ? "Benar"
-                            : "Salah"}
-                    </span>
-                  </div>
-
-                  <div
-                    className={`mt-2 whitespace-pre-line text-slate-900 ${
-                      s.arahTeks === "RTL" || isArabic(s.teks) ? "arabic" : ""
-                    }`}
-                    dir={s.arahTeks === "RTL" || isArabic(s.teks) ? "rtl" : "ltr"}
-                  >
-                    {s.teks}
-                  </div>
-
-                  <div className="mt-3 space-y-2">
-                    {s.tipe === "REKAMAN" ? (
-                      s.audioUrl ? (
-                        <audio controls src={s.audioUrl} className="w-full max-w-md" />
-                      ) : (
-                        <p className="text-sm text-slate-500">Tidak ada rekaman.</p>
-                      )
-                    ) : (
-                      s.options.map((o) => {
-                      const ar = isArabic(o.teks);
-                      let cls = "border-slate-200 bg-white text-slate-700";
-                      if (o.benar)
-                        cls = "border-emerald-400 bg-emerald-50 text-emerald-800";
-                      else if (o.dipilih && !o.benar)
-                        cls = "border-red-400 bg-red-50 text-red-800";
-                      return (
-                        <div
-                          key={o.id}
-                          className={`flex items-center gap-3 rounded-lg border px-3 py-2 text-sm ${cls}`}
-                        >
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/70 text-xs font-bold">
-                            {o.label}
-                          </span>
-                          <span className={ar ? "arabic" : ""} dir={ar ? "rtl" : "ltr"}>
-                            {o.teks}
-                          </span>
-                          {o.benar && (
-                            <span className="ml-auto text-xs font-semibold text-emerald-600">
-                              Kunci
-                            </span>
-                          )}
-                          {o.dipilih && !o.benar && (
-                            <span className="ml-auto text-xs font-semibold text-red-600">
-                              Jawabanmu
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })
-                    )}
-                  </div>
-
-                  {s.pembahasan && (
-                    <div className="mt-3 rounded-xl bg-[var(--muted)] p-3 text-sm text-[var(--muted-foreground)]">
-                      <span className="font-semibold text-[var(--foreground)]">
-                        Pembahasan:{" "}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-semibold text-[var(--foreground)]">
+                        Soal {s.urutan}
                       </span>
-                      {s.pembahasan}
+                      <Badge
+                        tone={
+                          s.tipe === "REKAMAN"
+                            ? s.dijawab
+                              ? "violet"
+                              : "default"
+                            : !s.dijawab
+                              ? "default"
+                              : s.dijawabBenar
+                                ? "success"
+                                : "danger"
+                        }
+                      >
+                        {s.tipe === "REKAMAN"
+                          ? s.dijawab
+                            ? s.nilaiManual !== null
+                              ? `Nilai BTQ: ${s.nilaiManual}`
+                              : "Rekaman terkirim"
+                            : "Belum direkam"
+                          : !s.dijawab
+                            ? "Tidak dijawab"
+                            : s.dijawabBenar
+                              ? "Benar"
+                              : "Salah"}
+                      </Badge>
                     </div>
-                  )}
+
+                    <div
+                      className={cn(
+                        "exam-text mt-3 whitespace-pre-line",
+                        (s.arahTeks === "RTL" || isArabic(s.teks)) && "arabic",
+                      )}
+                      dir={s.arahTeks === "RTL" || isArabic(s.teks) ? "rtl" : "ltr"}
+                    >
+                      {s.teks}
+                    </div>
+
+                    <div className="mt-4 space-y-2">
+                      {s.tipe === "REKAMAN" ? (
+                        s.audioUrl ? (
+                          <audio controls src={s.audioUrl} className="w-full max-w-md" />
+                        ) : (
+                          <p className="text-sm text-[var(--muted-foreground)]">
+                            Tidak ada rekaman.
+                          </p>
+                        )
+                      ) : (
+                        s.options.map((o) => {
+                          const ar = isArabic(o.teks);
+                          let cls =
+                            "border-[var(--exam-option-border)] bg-[var(--exam-option)] text-[var(--foreground)]";
+                          if (o.benar)
+                            cls =
+                              "border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--foreground)]";
+                          else if (o.dipilih && !o.benar)
+                            cls =
+                              "border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--foreground)]";
+                          return (
+                            <div
+                              key={o.id}
+                              className={cn(
+                                "flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm",
+                                cls,
+                              )}
+                            >
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--muted)] text-xs font-bold text-[var(--foreground)]">
+                                {o.label}
+                              </span>
+                              <span
+                                className={cn("text-[var(--foreground)]", ar && "arabic")}
+                                dir={ar ? "rtl" : "ltr"}
+                              >
+                                {o.teks}
+                              </span>
+                              {o.benar && (
+                                <span className="ml-auto text-xs font-semibold text-[var(--success)]">
+                                  Kunci
+                                </span>
+                              )}
+                              {o.dipilih && !o.benar && (
+                                <span className="ml-auto text-xs font-semibold text-[var(--danger)]">
+                                  Jawabanmu
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {s.pembahasan && (
+                      <div className="mt-4 rounded-xl bg-[var(--muted)] p-3 text-sm text-[var(--muted-foreground)]">
+                        <span className="font-semibold text-[var(--foreground)]">
+                          Pembahasan:{" "}
+                        </span>
+                        {s.pembahasan}
+                      </div>
+                    )}
                   </CardBody>
                 </Card>
               ))}

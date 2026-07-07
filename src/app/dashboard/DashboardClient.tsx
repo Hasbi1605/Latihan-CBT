@@ -160,15 +160,15 @@ export default function DashboardClient({ nama }: { nama: string }) {
               <p className="font-bold">{packages.length}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 rounded-xl bg-[var(--muted)] px-4 py-3">
-            <History className="h-5 w-5 text-sky-600" />
+            <div className="flex items-center gap-3 rounded-xl bg-[var(--muted)] px-4 py-3">
+            <History className="h-5 w-5 text-[var(--primary)]" />
             <div>
               <p className="text-xs text-[var(--muted-foreground)]">Percobaan selesai</p>
               <p className="font-bold">{selesai}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-xl bg-[var(--muted)] px-4 py-3">
-            <Sparkles className="h-5 w-5 text-violet-600" />
+            <Sparkles className="h-5 w-5 text-[var(--primary)]" />
             <div>
               <p className="text-xs text-[var(--muted-foreground)]">Mode BTQ</p>
               <p className="font-bold">Opsional</p>
@@ -224,7 +224,7 @@ export default function DashboardClient({ nama }: { nama: string }) {
                       {pkg.totalSoal} soal
                     </span>
                     <span className="flex items-center gap-1.5 font-medium">
-                      <Clock className="h-4 w-4 text-sky-600" />
+                      <Clock className="h-4 w-4 text-[var(--primary)]" />
                       {pkg.totalMenit} menit
                     </span>
                   </div>
