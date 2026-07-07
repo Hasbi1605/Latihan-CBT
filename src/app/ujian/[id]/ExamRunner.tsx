@@ -301,11 +301,11 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
   if (error) {
     return (
       <main className="flex flex-1 items-center justify-center p-8">
-        <div className="rounded-xl bg-white p-6 text-center shadow ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 text-center shadow-[var(--shadow-card)]">
           <p className="text-red-600 dark:text-red-400">{error}</p>
           <button
             onClick={() => router.replace("/dashboard")}
-            className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+            className="mt-4 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-foreground)]"
           >
             Kembali ke Dashboard
           </button>
@@ -331,24 +331,22 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
   const low = remaining <= 60;
 
   return (
-    <main className="flex flex-1 flex-col">
-      <div className="sticky top-0 z-20 border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+    <main className="flex flex-1 flex-col bg-[var(--background)]">
+      <div className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="min-w-0">
-            <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-              {state.packageNama}
-            </p>
-            <p className="truncate font-semibold text-slate-800 dark:text-slate-100">
-              Subtes {active.urutan} dari {active.totalSections}: {active.nama}
+            <p className="truncate text-xs text-[var(--muted-foreground)]">{state.packageNama}</p>
+            <p className="truncate font-semibold">
+              Subtes {active.urutan}/{active.totalSections}: {active.nama}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <ExamPrefsToolbar />
             <div
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 font-mono text-lg font-bold ${
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 font-mono text-lg font-bold tabular-nums ${
                 low
-                  ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300"
-                  : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+                  ? "bg-red-500/15 text-red-600 dark:text-red-300"
+                  : "bg-[var(--primary)]/15 text-[var(--primary)]"
               }`}
               aria-live="polite"
             >
@@ -360,9 +358,9 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
       </div>
 
       <div className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-4 py-6 lg:grid-cols-[1fr_20rem]">
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+        <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-card)]">
           <div className="flex items-center justify-between">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+            <span className="rounded-full bg-[var(--muted)] px-3 py-1 text-sm font-semibold">
               Soal {q.urutan} / {active.questions.length}
               {q.tipe === "REKAMAN" && " · Rekaman"}
             </span>
@@ -462,10 +460,8 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
           </div>
         </section>
 
-        <aside className="rounded-xl border border-slate-200 bg-white p-5 lg:sticky lg:top-20 lg:self-start dark:border-slate-700 dark:bg-slate-800">
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-            Navigasi Soal
-          </h3>
+        <aside className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-20 lg:self-start">
+          <h3 className="text-sm font-semibold">Navigasi Soal</h3>
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
             <span className="flex items-center gap-1">
               <span className="inline-block h-3 w-3 rounded bg-emerald-500" /> Terjawab
@@ -515,7 +511,7 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
 
           <button
             onClick={() => setShowConfirm(true)}
-            className="mt-5 w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="mt-5 w-full rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] hover:brightness-110"
           >
             {active.urutan === active.totalSections
               ? "Selesaikan Ujian"
@@ -525,8 +521,8 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
       </div>
 
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-card-hover)]">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
               Akhiri subtes {active.nama}?
             </h3>

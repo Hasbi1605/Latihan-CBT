@@ -2,31 +2,44 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  BarChart3,
+  ClipboardList,
+  Mic,
+  Package,
+} from "lucide-react";
+import { cn } from "@/lib/cn";
 
 const links = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/questions", label: "Bank Soal" },
-  { href: "/admin/packages", label: "Paket Ujian" },
-  { href: "/admin/btq", label: "Penilaian BTQ" },
+  { href: "/admin", label: "Dashboard", icon: BarChart3 },
+  { href: "/admin/questions", label: "Bank Soal", icon: ClipboardList },
+  { href: "/admin/packages", label: "Paket Ujian", icon: Package },
+  { href: "/admin/btq", label: "Penilaian BTQ", icon: Mic },
 ];
 
 export default function AdminNav() {
   const path = usePathname();
   return (
-    <nav className="flex flex-wrap gap-2 border-b border-slate-200 pb-4 dark:border-slate-700">
-      {links.map((l) => (
-        <Link
-          key={l.href}
-          href={l.href}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-            path === l.href
-              ? "bg-emerald-600 text-white"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"
-          }`}
-        >
-          {l.label}
-        </Link>
-      ))}
+    <nav className="flex flex-wrap gap-2 border-b border-[var(--border)] pb-4">
+      {links.map((l) => {
+        const active = path === l.href;
+        const Icon = l.icon;
+        return (
+          <Link
+            key={l.href}
+            href={l.href}
+            className={cn(
+              "inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition",
+              active
+                ? "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm"
+                : "bg-[var(--muted)] text-[var(--foreground)] hover:brightness-95",
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            {l.label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

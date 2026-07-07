@@ -3,6 +3,21 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  BookOpen,
+  Clock,
+  CreditCard,
+  History,
+  Layers,
+  Play,
+  Sparkles,
+} from "lucide-react";
+import { Alert } from "@/components/ui/Alert";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardBody, CardHeader } from "@/components/ui/Card";
+import { Input, Label } from "@/components/ui/Input";
+import { PageHeader } from "@/components/ui/StatCard";
 
 type PackageSection = {
   kode: string;
@@ -36,12 +51,10 @@ function modeLabel(mode: string) {
   return mode;
 }
 
-function modeBadgeClass(mode: string) {
-  if (mode === "REPLIKA_2026")
-    return "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300";
-  if (mode === "LATIHAN_LENGKAP")
-    return "bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300";
-  return "bg-slate-100 text-slate-600";
+function modeBadgeTone(mode: string): "success" | "violet" | "default" {
+  if (mode === "REPLIKA_2026") return "success";
+  if (mode === "LATIHAN_LENGKAP") return "violet";
+  return "default";
 }
 
 function tokenHint(mode: string) {
@@ -86,6 +99,7 @@ export default function DashboardClient({ nama }: { nama: string }) {
 
   const visible =
     modeFilter === "ALL" ? packages : packages.filter((p) => p.mode === modeFilter);
+  const selesai = attempts.filter((a) => a.status === "SELESAI").length;
 
   async function mulai() {
     if (!activePkg) return;
@@ -112,226 +126,239 @@ export default function DashboardClient({ nama }: { nama: string }) {
 
   return (
     <div className="space-y-8">
-      <section>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Assalamualaikum, {nama} 👋
-        </h1>
-        <p className="mt-1 text-slate-600 dark:text-slate-400">
-          Pilih paket simulasi di bawah ini untuk mulai berlatih.
-        </p>
-        <Link
-          href="/dashboard/kartu-ujian"
-          className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:underline dark:text-emerald-400"
-        >
-          🪪 Lihat Kartu Ujian Virtual →
-        </Link>
-      </section>
-
-      <section>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-            Paket Simulasi
-          </h2>
-          <div className="flex gap-1 rounded-lg border border-slate-200 p-1 text-xs dark:border-slate-700">
-            {(
-              [
-                ["ALL", "Semua"],
-                ["REPLIKA_2026", "Replika"],
-                ["LATIHAN_LENGKAP", "Lengkap+BTQ"],
-              ] as const
-            ).map(([val, label]) => (
-              <button
-                key={val}
-                onClick={() => setModeFilter(val)}
-                className={`rounded px-2 py-1 font-medium ${
-                  modeFilter === val
-                    ? "bg-emerald-600 text-white"
-                    : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+      <Card className="overflow-hidden">
+        <div className="hero-gradient px-6 py-6 text-white sm:px-8 sm:py-7">
+          <p className="text-sm font-medium text-emerald-100">Assalamualaikum</p>
+          <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{nama} 👋</h1>
+          <p className="mt-2 max-w-xl text-sm text-emerald-50/90">
+            Siap berlatih hari ini? Pilih paket simulasi, masukkan token, dan rasakan
+            pengalaman ujian seperti hari H.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/dashboard/kartu-ujian">
+              <Button variant="secondary" size="sm" className="!border-white/20 !bg-white/10 !text-white hover:!bg-white/20">
+                <CreditCard className="h-4 w-4" />
+                Kartu Ujian
+              </Button>
+            </Link>
           </div>
         </div>
-        {loading ? (
-          <p className="text-slate-500">Memuat…</p>
-        ) : visible.length === 0 ? (
-          <p className="text-slate-500">Belum ada paket ujian.</p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {visible.map((pkg) => (
-              <div
-                key={pkg.id}
-                className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-slate-900 dark:text-white">{pkg.nama}</h3>
-                  <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${modeBadgeClass(pkg.mode)}`}
-                  >
-                    {modeLabel(pkg.mode)}
-                  </span>
-                </div>
-                {pkg.deskripsi && (
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                    {pkg.deskripsi}
-                  </p>
-                )}
-                <div className="mt-3 flex gap-4 text-sm text-slate-600 dark:text-slate-400">
-                  <span>
-                    <strong>{pkg.totalSoal}</strong> soal
-                  </span>
-                  <span>
-                    <strong>{pkg.totalMenit}</strong> menit
-                  </span>
-                </div>
-                <ul className="mt-3 space-y-1 text-sm text-slate-500 dark:text-slate-400">
-                  {pkg.sections.map((s) => (
-                    <li key={s.kode} className="flex justify-between">
-                      <span>{s.nama}</span>
-                      <span className="text-slate-400">
-                        {s.jumlahSoal} soal · {s.menit}′
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+        <CardBody className="grid gap-3 sm:grid-cols-3">
+          <div className="flex items-center gap-3 rounded-xl bg-[var(--muted)] px-4 py-3">
+            <Layers className="h-5 w-5 text-[var(--primary)]" />
+            <div>
+              <p className="text-xs text-[var(--muted-foreground)]">Paket tersedia</p>
+              <p className="font-bold">{packages.length}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-xl bg-[var(--muted)] px-4 py-3">
+            <History className="h-5 w-5 text-sky-600" />
+            <div>
+              <p className="text-xs text-[var(--muted-foreground)]">Percobaan selesai</p>
+              <p className="font-bold">{selesai}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-xl bg-[var(--muted)] px-4 py-3">
+            <Sparkles className="h-5 w-5 text-violet-600" />
+            <div>
+              <p className="text-xs text-[var(--muted-foreground)]">Mode BTQ</p>
+              <p className="font-bold">Opsional</p>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
+
+      <section>
+        <PageHeader
+          eyebrow="Simulasi"
+          title="Paket Ujian"
+          description="Filter berdasarkan mode latihan yang kamu butuhkan."
+          action={
+            <div className="flex gap-1 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1 text-xs">
+              {(
+                [
+                  ["ALL", "Semua"],
+                  ["REPLIKA_2026", "Replika"],
+                  ["LATIHAN_LENGKAP", "Lengkap+BTQ"],
+                ] as const
+              ).map(([val, label]) => (
                 <button
-                  onClick={() => {
-                    setActivePkg(pkg);
-                    setToken("");
-                    setError(null);
-                  }}
-                  className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                  key={val}
+                  onClick={() => setModeFilter(val)}
+                  className={`rounded-lg px-3 py-1.5 font-semibold transition ${
+                    modeFilter === val
+                      ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                      : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                  }`}
                 >
-                  Mulai Ujian
+                  {label}
                 </button>
-              </div>
+              ))}
+            </div>
+          }
+        />
+
+        {loading ? (
+          <p className="text-[var(--muted-foreground)]">Memuat paket…</p>
+        ) : visible.length === 0 ? (
+          <Card>
+            <CardBody className="py-10 text-center text-[var(--muted-foreground)]">
+              Belum ada paket ujian.
+            </CardBody>
+          </Card>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {visible.map((pkg) => (
+              <Card key={pkg.id} hover className="flex flex-col">
+                <CardHeader className="flex items-start justify-between gap-2 !py-4">
+                  <div>
+                    <Badge tone={modeBadgeTone(pkg.mode)}>{modeLabel(pkg.mode)}</Badge>
+                    <h3 className="mt-2 font-bold">{pkg.nama}</h3>
+                  </div>
+                  <BookOpen className="h-5 w-5 text-[var(--muted-foreground)]" />
+                </CardHeader>
+                <CardBody className="flex flex-1 flex-col pt-0">
+                  {pkg.deskripsi && (
+                    <p className="text-sm text-[var(--muted-foreground)]">{pkg.deskripsi}</p>
+                  )}
+                  <div className="mt-3 flex gap-4 text-sm">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <BookOpen className="h-4 w-4 text-[var(--primary)]" />
+                      {pkg.totalSoal} soal
+                    </span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <Clock className="h-4 w-4 text-sky-600" />
+                      {pkg.totalMenit} menit
+                    </span>
+                  </div>
+                  <ul className="mt-4 space-y-2">
+                    {pkg.sections.map((s) => (
+                      <li
+                        key={s.kode}
+                        className="flex items-center justify-between rounded-lg bg-[var(--muted)] px-3 py-2 text-sm"
+                      >
+                        <span>{s.nama}</span>
+                        <span className="text-[var(--muted-foreground)]">
+                          {s.jumlahSoal} · {s.menit}′
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    className="mt-5 w-full"
+                    onClick={() => {
+                      setActivePkg(pkg);
+                      setToken("");
+                      setError(null);
+                    }}
+                  >
+                    <Play className="h-4 w-4" />
+                    Mulai Ujian
+                  </Button>
+                </CardBody>
+              </Card>
             ))}
           </div>
         )}
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
-          Riwayat Latihan
-        </h2>
+        <PageHeader eyebrow="Riwayat" title="Latihan Sebelumnya" />
         {loading ? (
-          <p className="text-slate-500">Memuat…</p>
+          <p className="text-[var(--muted-foreground)]">Memuat riwayat…</p>
         ) : attempts.length === 0 ? (
-          <p className="text-slate-500">Belum ada riwayat. Ayo mulai latihan!</p>
+          <Card>
+            <CardBody className="py-10 text-center text-[var(--muted-foreground)]">
+              Belum ada riwayat. Ayo mulai latihan pertama!
+            </CardBody>
+          </Card>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-left text-slate-500 dark:bg-slate-900/50">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Paket</th>
-                  <th className="px-4 py-3 font-medium">Mulai</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {attempts.map((a) => (
-                  <tr key={a.id}>
-                    <td className="px-4 py-3 text-slate-800 dark:text-slate-200">
-                      {a.packageNama}
-                      {a.tabSwitchCount > 0 && (
-                        <span className="ml-2 text-xs text-amber-600">
-                          ⚠ {a.tabSwitchCount}× tab blur
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500">
-                      {formatTanggal(a.mulaiAt)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {a.status === "SELESAI" ? (
-                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
-                          Selesai
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
-                          Berlangsung
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {a.status === "SELESAI" ? (
-                        <Link
-                          href={`/hasil/${a.id}`}
-                          className="font-medium text-emerald-600 hover:underline dark:text-emerald-400"
-                        >
-                          Lihat Hasil
-                        </Link>
-                      ) : (
-                        <Link
-                          href={`/ujian/${a.id}`}
-                          className="font-medium text-amber-600 hover:underline dark:text-amber-400"
-                        >
-                          Lanjutkan
-                        </Link>
-                      )}
-                    </td>
+          <Card>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="border-b border-[var(--border)] bg-[var(--muted)] text-left text-[var(--muted-foreground)]">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Paket</th>
+                    <th className="px-4 py-3 font-medium">Mulai</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium text-right">Aksi</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {attempts.map((a) => (
+                    <tr key={a.id} className="hover:bg-[var(--muted)]/50">
+                      <td className="px-4 py-3 font-medium">
+                        {a.packageNama}
+                        {a.tabSwitchCount > 0 && (
+                          <Badge tone="warning" className="ml-2">
+                            {a.tabSwitchCount}× blur
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                        {formatTanggal(a.mulaiAt)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge tone={a.status === "SELESAI" ? "success" : "warning"}>
+                          {a.status === "SELESAI" ? "Selesai" : "Berlangsung"}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link
+                          href={a.status === "SELESAI" ? `/hasil/${a.id}` : `/ujian/${a.id}`}
+                          className="font-semibold text-[var(--primary)] hover:underline"
+                        >
+                          {a.status === "SELESAI" ? "Hasil" : "Lanjutkan"}
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         )}
       </section>
 
       {activePkg && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-800">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              Mulai: {activePkg.nama}
-            </h3>
-            <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-600 dark:bg-slate-900/50 dark:text-slate-400">
-              <p>
-                Ujian terdiri dari <strong>{activePkg.totalSoal} soal</strong> dalam{" "}
-                <strong>{activePkg.totalMenit} menit</strong>, dikerjakan{" "}
-                <strong>berurutan per subtes</strong>. Setiap subtes memiliki timer sendiri
-                dan tidak dapat diulang setelah waktunya habis.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <Card className="w-full max-w-md shadow-[var(--shadow-card-hover)]">
+            <CardHeader>
+              <h3 className="text-lg font-bold">Mulai: {activePkg.nama}</h3>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                {activePkg.totalSoal} soal · {activePkg.totalMenit} menit · subtes berurutan
               </p>
-            </div>
-            <label className="mt-4 block text-sm font-medium text-slate-700 dark:text-slate-300">
-              Token Ujian
-            </label>
-            <input
-              type="text"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="Masukkan token dari pengawas"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 uppercase tracking-wider outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
-            />
-            <p className="mt-1 text-xs text-slate-400">
-              Token demo:{" "}
-              <span className="font-mono">{tokenHint(activePkg.mode)}</span>
-            </p>
-
-            {error && (
-              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
-                {error}
-              </p>
-            )}
-
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                onClick={() => setActivePkg(null)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
-              >
-                Batal
-              </button>
-              <button
-                onClick={mulai}
-                disabled={starting || !token}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
-              >
-                {starting ? "Memulai…" : "Mulai Sekarang"}
-              </button>
-            </div>
-          </div>
+            </CardHeader>
+            <CardBody className="space-y-4 pt-4">
+              <div className="rounded-xl bg-[var(--muted)] p-3 text-sm text-[var(--muted-foreground)]">
+                Setiap subtes memiliki timer sendiri. Subtes yang selesai tidak dapat dibuka
+                kembali.
+              </div>
+              <div>
+                <Label htmlFor="token">Token Ujian</Label>
+                <Input
+                  id="token"
+                  type="text"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  placeholder="Masukkan token"
+                  className="uppercase tracking-wider"
+                />
+                <p className="mt-1.5 text-xs text-[var(--muted-foreground)]">
+                  Demo: <span className="font-mono font-semibold">{tokenHint(activePkg.mode)}</span>
+                </p>
+              </div>
+              {error && <Alert tone="error">{error}</Alert>}
+              <div className="flex justify-end gap-2">
+                <Button variant="secondary" onClick={() => setActivePkg(null)}>
+                  Batal
+                </Button>
+                <Button onClick={mulai} disabled={starting || !token}>
+                  {starting ? "Memulai…" : "Mulai Sekarang"}
+                </Button>
+              </div>
+            </CardBody>
+          </Card>
         </div>
       )}
     </div>

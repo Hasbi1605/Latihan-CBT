@@ -1,8 +1,13 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import AppHeader from "@/components/AppHeader";
 import { ExamError, getReview } from "@/lib/exam";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardBody } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/StatCard";
 
 const ARABIC_RE = /[\u0600-\u06FF]/;
 const isArabic = (s: string) => ARABIC_RE.test(s);
@@ -27,33 +32,29 @@ export default async function ReviewPage({
   return (
     <>
       <AppHeader nama={user.nama} nomorPeserta={user.nomorPeserta} role={user.role} />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-slate-500">Pembahasan</p>
-            <h1 className="text-2xl font-bold text-slate-900">
-              {review.packageNama}
-            </h1>
-          </div>
-          <Link
-            href={`/hasil/${id}`}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
-          >
-            ← Hasil
-          </Link>
-        </div>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6">
+        <PageHeader
+          eyebrow="Pembahasan"
+          title={review.packageNama}
+          action={
+            <Link href={`/hasil/${id}`}>
+              <Button variant="secondary" size="sm">
+                <ArrowLeft className="h-4 w-4" />
+                Hasil
+              </Button>
+            </Link>
+          }
+        />
 
         {review.sections.map((sec) => (
           <section key={sec.kode} className="mt-8">
-            <h2 className="mb-3 border-b border-slate-200 pb-2 text-lg font-semibold text-slate-800">
+            <h2 className="mb-3 border-b border-[var(--border)] pb-2 text-lg font-bold">
               {sec.nama}
             </h2>
-            <div className="space-y-5">
+            <div className="space-y-4">
               {sec.soal.map((s) => (
-                <div
-                  key={s.urutan}
-                  className="rounded-xl border border-slate-200 bg-white p-5"
-                >
+                <Card key={s.urutan}>
+                  <CardBody>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-slate-700">
                       Soal {s.urutan}
@@ -137,25 +138,23 @@ export default async function ReviewPage({
                   </div>
 
                   {s.pembahasan && (
-                    <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
-                      <span className="font-semibold text-slate-700">
+                    <div className="mt-3 rounded-xl bg-[var(--muted)] p-3 text-sm text-[var(--muted-foreground)]">
+                      <span className="font-semibold text-[var(--foreground)]">
                         Pembahasan:{" "}
                       </span>
                       {s.pembahasan}
                     </div>
                   )}
-                </div>
+                  </CardBody>
+                </Card>
               ))}
             </div>
           </section>
         ))}
 
         <div className="mt-8">
-          <Link
-            href="/dashboard"
-            className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100"
-          >
-            Kembali ke Dashboard
+          <Link href="/dashboard">
+            <Button variant="secondary">Kembali ke Dashboard</Button>
           </Link>
         </div>
       </main>

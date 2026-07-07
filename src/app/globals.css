@@ -1,20 +1,48 @@
 @import "tailwindcss";
 
+/* Design tokens — terinspirasi TailAdmin / shadcn assessment dashboards */
 :root {
-  --background: #f8fafc;
+  --background: #f1f5f9;
   --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --primary: #059669;
+  --primary-foreground: #ffffff;
+  --primary-soft: #ecfdf5;
+  --accent: #0ea5e9;
+  --ring: #059669;
+  --shadow-card: 0 1px 3px rgb(15 23 42 / 0.06), 0 1px 2px rgb(15 23 42 / 0.04);
+  --shadow-card-hover: 0 10px 25px rgb(15 23 42 / 0.08), 0 4px 10px rgb(15 23 42 / 0.04);
+  --gradient-hero: linear-gradient(135deg, #047857 0%, #0d9488 45%, #0369a1 100%);
+  --gradient-mesh:
+    radial-gradient(at 20% 30%, rgb(16 185 129 / 0.25) 0, transparent 50%),
+    radial-gradient(at 80% 10%, rgb(14 165 233 / 0.2) 0, transparent 45%),
+    radial-gradient(at 60% 80%, rgb(5 150 105 / 0.15) 0, transparent 40%);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-arabic: var(--font-arabic), "Amiri", "Scheherazade New", serif;
 }
 
 html.dark {
-  --background: #0f172a;
+  --background: #0b1220;
   --foreground: #f1f5f9;
+  --card: #111827;
+  --card-foreground: #f1f5f9;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --border: #1f2937;
+  --primary: #10b981;
+  --primary-foreground: #022c22;
+  --primary-soft: rgb(16 185 129 / 0.12);
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.35);
+  --shadow-card-hover: 0 12px 28px rgb(0 0 0 / 0.45);
   color-scheme: dark;
 }
 
@@ -29,7 +57,9 @@ html[data-font-size="lg"] .exam-text {
 }
 
 body {
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 .arabic,
@@ -45,6 +75,26 @@ body {
 .arabic {
   font-size: 1.35em;
   line-height: 2;
+}
+
+.hero-gradient {
+  background: var(--gradient-hero);
+}
+
+.hero-mesh {
+  background-color: var(--background);
+  background-image: var(--gradient-mesh);
+}
+
+.glass-panel {
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 0.5);
+}
+
+html.dark .glass-panel {
+  background: rgb(17 24 39 / 0.72);
+  border-color: rgb(255 255 255 / 0.08);
 }
 
 @media print {
