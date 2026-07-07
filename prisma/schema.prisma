@@ -1,0 +1,139 @@
+// Skema database Simulasi CBT UIN Siber Cirebon
+// Referensi model data: docs/PRD-Simulasi-CBT-UIN-Siber-Cirebon.md (bagian 8)
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum Role {
+  PESERTA
+  ADMIN
+}
+
+model User {
+  id           String    @id @default(cuid())
+  nama         String
+  nomorPeserta String    @unique
+  passwordHash String
+  role         Role      @default(PESERTA)
+  createdAt    DateTime  @default(now())
+  attempts     Attempt[]
+}
+
+model Subtest {
+  id        String   @id @default(cuid())
+  kode      String   @unique // TPA, BAHASA, KEISLAMAN
+  nama      String
+  deskripsi String?
+  urutan    Int      @default(0)
+
+  questions       Question[]
+  packageSections ExamPackageSection[]
+  attemptSections AttemptSection[]
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  subtestId   String
+  subtest     Subtest  @relation(fields: [subtestId], references: [id], onDelete: Cascade)
+  subkategori String? // Verbal/Figural/Kuantitatif, Indonesia/Inggris/Arab, Quran-Hadis/Fikih/Akhlak/SKI
+  teks        String
+  arahTeks    String   @default("LTR") // LTR atau RTL (untuk teks Arab)
+  gambarUrl   String?
+  pembahasan  String?
+  tingkat     String   @default("SEDANG") // MUDAH, SEDANG, SULIT
+  createdAt   DateTime @default(now())
+
+  options Option[]
+  answers AttemptAnswer[]
+}
+
+model Option {
+  id         String  @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  label      String // A, B, C, D, E
+  teks       String
+  isCorrect  Boolean @default(false)
+}
+
+model ExamPackage {
+  id        String   @id @default(cuid())
+  nama      String
+  mode      String   @default("REPLIKA_2026") // REPLIKA_2026 atau LATIHAN_LENGKAP
+  token     String
+  deskripsi String?
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  sections ExamPackageSection[]
+  attempts Attempt[]
+}
+
+model ExamPackageSection {
+  id          String  @id @default(cuid())
+  packageId   String
+  package     ExamPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  subtestId   String
+  subtest     Subtest @relation(fields: [subtestId], references: [id])
+  urutan      Int
+  jumlahSoal  Int
+  durasiDetik Int
+  acakSoal    Boolean @default(true)
+  acakOpsi    Boolean @default(true)
+}
+
+model Attempt {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId String
+  package   ExamPackage @relation(fields: [packageId], references: [id])
+  status    String    @default("BERLANGSUNG") // BERLANGSUNG, SELESAI
+  mulaiAt   DateTime  @default(now())
+  selesaiAt DateTime?
+  skorTotal Float?
+  createdAt DateTime  @default(now())
+
+  sections AttemptSection[]
+}
+
+model AttemptSection {
+  id          String    @id @default(cuid())
+  attemptId   String
+  attempt     Attempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  subtestId   String
+  subtest     Subtest   @relation(fields: [subtestId], references: [id])
+  urutan      Int
+  durasiDetik Int
+  mulaiAt     DateTime? // waktu peserta memulai subtes ini (dasar timer server)
+  selesaiAt   DateTime?
+  status      String    @default("BELUM") // BELUM, BERLANGSUNG, SELESAI
+  benar       Int?
+  salah       Int?
+  kosong      Int?
+  skor        Float?
+
+  answers AttemptAnswer[]
+}
+
+model AttemptAnswer {
+  id               String   @id @default(cuid())
+  attemptSectionId String
+  attemptSection   AttemptSection @relation(fields: [attemptSectionId], references: [id], onDelete: Cascade)
+  questionId       String
+  question         Question @relation(fields: [questionId], references: [id])
+  urutan           Int
+  optionOrderJson  String // urutan tampil opsi (array id opsi) untuk acak opsi
+  pilihanOptionId  String? // id opsi yang dipilih peserta
+  ragu             Boolean  @default(false)
+  updatedAt        DateTime @updatedAt
+
+  @@unique([attemptSectionId, questionId])
+}
