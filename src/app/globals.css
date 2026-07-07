@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Design tokens — terinspirasi TailAdmin / shadcn assessment dashboards */
 :root {
   --background: #f1f5f9;
@@ -39,7 +41,7 @@ html.dark {
   --muted-foreground: #94a3b8;
   --border: #1f2937;
   --primary: #10b981;
-  --primary-foreground: #022c22;
+  --primary-foreground: #ffffff;
   --primary-soft: rgb(16 185 129 / 0.12);
   --shadow-card: 0 1px 3px rgb(0 0 0 / 0.35);
   --shadow-card-hover: 0 12px 28px rgb(0 0 0 / 0.45);

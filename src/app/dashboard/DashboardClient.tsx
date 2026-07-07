@@ -14,10 +14,13 @@ import {
 } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonSizes, buttonVariants } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
+import { Dialog } from "@/components/ui/Dialog";
 import { Input, Label } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/StatCard";
+import { SegmentedControl } from "@/components/PreferencesProvider";
+import { cn } from "@/lib/cn";
 
 type PackageSection = {
   kode: string;
@@ -129,17 +132,23 @@ export default function DashboardClient({ nama }: { nama: string }) {
       <Card className="overflow-hidden">
         <div className="hero-gradient px-6 py-6 text-white sm:px-8 sm:py-7">
           <p className="text-sm font-medium text-emerald-100">Assalamualaikum</p>
-          <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{nama} 👋</h1>
+          <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{nama}</h1>
           <p className="mt-2 max-w-xl text-sm text-emerald-50/90">
             Siap berlatih hari ini? Pilih paket simulasi, masukkan token, dan rasakan
             pengalaman ujian seperti hari H.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/dashboard/kartu-ujian">
-              <Button variant="secondary" size="sm" className="!border-white/20 !bg-white/10 !text-white hover:!bg-white/20">
-                <CreditCard className="h-4 w-4" />
-                Kartu Ujian
-              </Button>
+            <Link
+              href="/dashboard/kartu-ujian"
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition",
+                buttonVariants.secondary,
+                buttonSizes.sm,
+                "!border-white/20 !bg-white/10 !text-white hover:!bg-white/20",
+              )}
+            >
+              <CreditCard className="h-4 w-4" />
+              Kartu Ujian
             </Link>
           </div>
         </div>
@@ -174,27 +183,15 @@ export default function DashboardClient({ nama }: { nama: string }) {
           title="Paket Ujian"
           description="Filter berdasarkan mode latihan yang kamu butuhkan."
           action={
-            <div className="flex gap-1 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1 text-xs">
-              {(
-                [
-                  ["ALL", "Semua"],
-                  ["REPLIKA_2026", "Replika"],
-                  ["LATIHAN_LENGKAP", "Lengkap+BTQ"],
-                ] as const
-              ).map(([val, label]) => (
-                <button
-                  key={val}
-                  onClick={() => setModeFilter(val)}
-                  className={`rounded-lg px-3 py-1.5 font-semibold transition ${
-                    modeFilter === val
-                      ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                      : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl
+              value={modeFilter}
+              onChange={setModeFilter}
+              options={[
+                { value: "ALL", label: "Semua" },
+                { value: "REPLIKA_2026", label: "Replika" },
+                { value: "LATIHAN_LENGKAP", label: "Lengkap+BTQ" },
+              ]}
+            />
           }
         />
 
@@ -239,13 +236,13 @@ export default function DashboardClient({ nama }: { nama: string }) {
                       >
                         <span>{s.nama}</span>
                         <span className="text-[var(--muted-foreground)]">
-                          {s.jumlahSoal} · {s.menit}′
+                          {s.jumlahSoal} soal · {s.menit} menit
                         </span>
                       </li>
                     ))}
                   </ul>
                   <Button
-                    className="mt-5 w-full"
+                    className="mt-auto w-full"
                     onClick={() => {
                       setActivePkg(pkg);
                       setToken("");
@@ -305,8 +302,14 @@ export default function DashboardClient({ nama }: { nama: string }) {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <Link
-                          href={a.status === "SELESAI" ? `/hasil/${a.id}` : `/ujian/${a.id}`}
-                          className="font-semibold text-[var(--primary)] hover:underline"
+                          href={
+                            a.status === "SELESAI" ? `/hasil/${a.id}` : `/ujian/${a.id}`
+                          }
+                          className={cn(
+                            "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition",
+                            buttonVariants.outline,
+                            buttonSizes.sm,
+                          )}
                         >
                           {a.status === "SELESAI" ? "Hasil" : "Lanjutkan"}
                         </Link>
@@ -320,47 +323,51 @@ export default function DashboardClient({ nama }: { nama: string }) {
         )}
       </section>
 
-      {activePkg && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <Card className="w-full max-w-md shadow-[var(--shadow-card-hover)]">
-            <CardHeader>
-              <h3 className="text-lg font-bold">Mulai: {activePkg.nama}</h3>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {activePkg.totalSoal} soal · {activePkg.totalMenit} menit · subtes berurutan
+      <Dialog
+        open={activePkg !== null}
+        onClose={() => setActivePkg(null)}
+        title={activePkg ? `Mulai: ${activePkg.nama}` : ""}
+        description={
+          activePkg
+            ? `${activePkg.totalSoal} soal · ${activePkg.totalMenit} menit · subtes berurutan`
+            : undefined
+        }
+      >
+        {activePkg && (
+          <div className="space-y-4">
+            <div className="rounded-xl bg-[var(--muted)] p-3 text-sm text-[var(--muted-foreground)]">
+              Setiap subtes memiliki timer sendiri. Subtes yang selesai tidak dapat dibuka
+              kembali.
+            </div>
+            <div>
+              <Label htmlFor="token">Token Ujian</Label>
+              <Input
+                id="token"
+                type="text"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder="Masukkan token"
+                className="uppercase tracking-wider"
+              />
+              <p className="mt-1.5 text-xs text-[var(--muted-foreground)]">
+                Demo:{" "}
+                <span className="font-mono font-semibold">
+                  {tokenHint(activePkg.mode)}
+                </span>
               </p>
-            </CardHeader>
-            <CardBody className="space-y-4 pt-4">
-              <div className="rounded-xl bg-[var(--muted)] p-3 text-sm text-[var(--muted-foreground)]">
-                Setiap subtes memiliki timer sendiri. Subtes yang selesai tidak dapat dibuka
-                kembali.
-              </div>
-              <div>
-                <Label htmlFor="token">Token Ujian</Label>
-                <Input
-                  id="token"
-                  type="text"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  placeholder="Masukkan token"
-                  className="uppercase tracking-wider"
-                />
-                <p className="mt-1.5 text-xs text-[var(--muted-foreground)]">
-                  Demo: <span className="font-mono font-semibold">{tokenHint(activePkg.mode)}</span>
-                </p>
-              </div>
-              {error && <Alert tone="error">{error}</Alert>}
-              <div className="flex justify-end gap-2">
-                <Button variant="secondary" onClick={() => setActivePkg(null)}>
-                  Batal
-                </Button>
-                <Button onClick={mulai} disabled={starting || !token}>
-                  {starting ? "Memulai…" : "Mulai Sekarang"}
-                </Button>
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-      )}
+            </div>
+            {error && <Alert tone="error">{error}</Alert>}
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setActivePkg(null)}>
+                Batal
+              </Button>
+              <Button onClick={mulai} disabled={starting || !token}>
+                {starting ? "Memulai…" : "Mulai Sekarang"}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Dialog>
     </div>
   );
 }

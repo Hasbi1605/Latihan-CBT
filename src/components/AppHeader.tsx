@@ -47,7 +47,7 @@ export default function AppHeader({
           {isAdmin && (
             <Link
               href="/dashboard"
-              className="hidden text-sm font-medium text-[var(--primary)] hover:underline sm:inline"
+              className="text-sm font-medium text-[var(--primary)] hover:underline"
             >
               Mode Peserta
             </Link>
@@ -60,7 +60,7 @@ export default function AppHeader({
             <div className="text-right leading-tight">
               <p className="max-w-[9rem] truncate text-sm font-semibold">{nama}</p>
               <p className="text-[11px] text-[var(--muted-foreground)]">
-                {isAdmin ? "Administrator" : `No. ${nomorPeserta}`}
+                {isAdmin ? "Panel Admin" : `No. ${nomorPeserta}`}
               </p>
             </div>
           </div>
