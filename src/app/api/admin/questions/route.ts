@@ -22,6 +22,7 @@ export async function GET() {
       id: q.id,
       subtestKode: q.subtest.kode,
       subtestNama: q.subtest.nama,
+      subtestId: q.subtestId,
       subkategori: q.subkategori,
       teks: q.teks,
       tipe: q.tipe,
@@ -30,6 +31,9 @@ export async function GET() {
       pembahasan: q.pembahasan,
       gambarUrl: q.gambarUrl,
       optionCount: q.options.length,
+      opsi: q.options
+        .sort((a, b) => a.label.localeCompare(b.label))
+        .map((o) => ({ teks: o.teks, benar: o.isCorrect })),
     })),
   });
 }

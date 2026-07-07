@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn";
 
-const variants = {
+export const buttonVariants = {
   primary:
     "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm hover:brightness-110 active:brightness-95",
   secondary:
@@ -11,7 +11,7 @@ const variants = {
     "border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10",
 } as const;
 
-const sizes = {
+export const buttonSizes = {
   sm: "h-8 px-3 text-xs",
   md: "h-10 px-4 text-sm",
   lg: "h-11 px-6 text-base",
@@ -24,15 +24,15 @@ export function Button({
   children,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: keyof typeof variants;
-  size?: keyof typeof sizes;
+  variant?: keyof typeof buttonVariants;
+  size?: keyof typeof buttonSizes;
 }) {
   return (
     <button
       className={cn(
         "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition disabled:pointer-events-none disabled:opacity-50",
-        variants[variant],
-        sizes[size],
+        buttonVariants[variant],
+        buttonSizes[size],
         className,
       )}
       {...props}

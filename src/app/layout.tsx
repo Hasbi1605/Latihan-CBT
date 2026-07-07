@@ -29,7 +29,15 @@ export default function RootLayout({
     <html
       lang="id"
       className={`${geistSans.variable} ${amiri.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var d=localStorage.getItem("cbt-dark")==="1";document.documentElement.classList.toggle("dark",d);}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <PreferencesProvider>{children}</PreferencesProvider>
       </body>
