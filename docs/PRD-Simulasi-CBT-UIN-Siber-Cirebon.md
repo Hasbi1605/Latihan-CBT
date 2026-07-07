@@ -1,218 +1,232 @@
 # PRD — Sistem Simulasi Latihan CBT SPMB Mandiri UIN Siber Syekh Nurjati Cirebon
 
 **Product Requirements Document (PRD)**
-**Versi:** 1.0
+**Versi:** 2.0 (revisi setelah deep research)
 **Tanggal:** 7 Juli 2026
 **Status:** Draft
-**Penyusun:** Tim Pengembang (proyek pribadi)
 **Tipe Produk:** Aplikasi web latihan / simulasi ujian berbasis komputer (Computer Based Test)
+**Konteks pengguna:** Adik penyusun, calon peserta SPMB Mandiri Reguler UIN SSC TA 2026/2027, prodi tujuan **S1 Akuntansi Syariah (Fakultas Ekonomi dan Bisnis Islam)**.
+
+> **Perubahan penting dari v1.0:** Setelah menelusuri pengumuman resmi **2026** (bukan hanya 2025), struktur ujian berubah. Untuk TA 2026/2027 mata ujian **hanya 3: Tes Potensi Akademik, Kebahasaan, dan Keislaman** — **tidak ada lagi pembagian IPA/IPS**, dan **BTQ tidak lagi tercantum sebagai mata ujian terpisah**. Ini konsisten dengan pengalaman adik yang tidak ditanya kelompok IPA/IPS saat mendaftar. PRD ini menjadikan struktur 2026 sebagai acuan utama.
 
 ---
 
 ## 1. Ringkasan Eksekutif
 
-Dokumen ini mendefinisikan kebutuhan produk untuk membangun **sistem simulasi latihan CBT** yang meniru pengalaman ujian **Seleksi Penerimaan Mahasiswa Baru (SPMB) Jalur Mandiri Reguler UIN Siber Syekh Nurjati Cirebon (UIN SSC)**.
+Produk ini adalah **sistem simulasi latihan CBT** yang meniru pengalaman ujian **SPMB Jalur Mandiri Reguler UIN Siber Syekh Nurjati Cirebon (UIN SSC)** untuk membantu adik penyusun berlatih dalam kondisi semirip mungkin dengan ujian sesungguhnya.
 
-Tujuan utama produk ini adalah membantu calon peserta (dalam kasus ini, adik dari pemilik proyek) **berlatih dalam kondisi yang menyerupai ujian sesungguhnya**: antarmuka mirip aplikasi CBT resmi, tipe soal sesuai kisi-kisi, timer hitung mundur, navigasi soal, penanda ragu-ragu, penyimpanan jawaban otomatis, serta skoring dan pembahasan di akhir.
+Tiga pilar produk:
+1. **Realisme antarmuka & mekanik** — meniru aplikasi CBT/SSE resmi: login peserta, token, **timer per-subtes berurutan**, navigasi nomor dengan indikator warna, tandai ragu-ragu, auto-save, auto-submit, konfirmasi selesai, acak soal & opsi.
+2. **Akurasi materi** — struktur & komposisi soal mengacu pada mata ujian resmi UIN SSC 2026 (TPA, Kebahasaan, Keislaman) dengan gaya soal mengikuti **UM-PTKIN (SSE)** sebagai referensi otoritatif terdekat.
+3. **Umpan balik belajar** — skoring per subtes, pembahasan, dan pelacakan progres antar percobaan.
 
-Produk ini **bukan** aplikasi ujian resmi dan **tidak berafiliasi** dengan UIN SSC; ini murni alat latihan pribadi/edukatif.
-
----
-
-## 2. Latar Belakang & Hasil Riset
-
-### 2.1 Tentang SPMB Mandiri UIN Siber Syekh Nurjati Cirebon
-
-UIN Siber Syekh Nurjati Cirebon (sebelumnya IAIN Syekh Nurjati) menyelenggarakan jalur **SPMB Mandiri Reguler**. Berdasarkan pengumuman resmi Nomor B-3564/Un.30/R/PP.00.9/06/2025 untuk TA 2025/2026:
-
-- **Ujian dilakukan dengan metode CBT (Computer Based Test)**, dilaksanakan pada 15–17 Juli 2025 sesuai jadwal pada kartu ujian, dalam beberapa sesi.
-- Pada penyelenggaraan 2025, seleksi terdiri dari **tes CBT dan wawancara**, diikuti sekitar 400 calon mahasiswa.
-- Calon mahasiswa dapat memilih **maksimal tiga program studi** dan wajib memilih salah satu prodi keagamaan pada pilihan ketiga.
-
-### 2.2 Materi/Mata Ujian yang Diujikan (Kisi-Kisi Resmi UIN SSC)
-
-Berdasarkan pengumuman resmi, mata ujian jalur mandiri UIN SSC mencakup:
-
-**A) Tes Kemampuan Dasar (TKD):**
-- Tes Potensi Akademik (TPA)
-- Kebahasaan
-
-**B) Tes Kemampuan Bidang:**
-- IPA (untuk kelompok IPA)
-- IPS (untuk kelompok IPS)
-
-**C) Tes Kemampuan Baca Tulis Al-Quran (BTQ)**
-
-### 2.3 Rincian Materi (Referensi Pola Umum UM/Mandiri UIN)
-
-Karena kisi-kisi rinci per subtes tidak dipublikasikan detail oleh UIN SSC, kita mengacu pada pola umum Ujian Mandiri UIN nasional (mis. UIN Sunan Kalijaga, UIN Sumatera Utara) sebagai basis penyusunan bank soal simulasi:
-
-| Komponen | Cakupan materi | Estimasi bobot* |
-|---|---|---|
-| **Tes Potensi Akademik (TPA)** | Penalaran verbal (sinonim, antonim, analogi), penalaran numerik (deret, aritmetika, persentase, perbandingan), penalaran logis (silogisme, sebab-akibat, penarikan kesimpulan), pemahaman bacaan | ~25 soal |
-| **Kebahasaan — Bahasa Indonesia** | Pemahaman teks, ide pokok, tata bahasa, ejaan | bagian kebahasaan |
-| **Kebahasaan — Bahasa Inggris** | Grammar (tenses, subject-verb agreement, passive voice), vocabulary/sinonim kontekstual, reading comprehension, structure (melengkapi kalimat) | ~10 soal |
-| **Kebahasaan — Bahasa Arab** | Mufrodat (kosakata), Qawa'id/nahwu-sharf (isim, fi'il, huruf, jumlah ismiyyah & fi'liyyah), qira'ah (pemahaman teks), terjemah | ~10 soal |
-| **Tes Kemampuan Bidang IPA** | Matematika, Fisika, Kimia, Biologi | ~20 soal |
-| **Tes Kemampuan Bidang IPS** | Sosiologi, Sejarah, Geografi, Ekonomi | ~20 soal |
-| **Dirasah Islamiyah / Keislaman** | Al-Qur'an & Hadis, Fikih, Akidah/Tauhid, Akhlak, Sejarah Kebudayaan Islam (SKI) | ~20 soal |
-| **Baca Tulis Al-Quran (BTQ)** | Tajwid, makharijul huruf, kelancaran membaca, penulisan huruf hijaiyah | penilaian khusus |
-
-> *\*Bobot bersifat estimasi berdasarkan pola UIN lain dan harus dikonfigurasi ulang bila UIN SSC merilis kisi-kisi resmi. Sistem harus fleksibel agar jumlah & bobot soal per subtes bisa diubah admin.*
-
-**Catatan tentang BTQ:** Pada ujian resmi, BTQ sering diuji secara lisan/praktik (membaca di depan penguji). Untuk versi simulasi CBT, komponen ini diadaptasi menjadi soal pilihan ganda berbasis teori (tajwid, hukum bacaan, makharijul huruf, penulisan) — dengan opsi pengembangan lanjutan berupa rekaman audio (lihat bagian *Out of Scope / Fase Lanjutan*).
-
-### 2.4 Karakteristik & Fitur Aplikasi CBT Sesungguhnya (Acuan Meniru)
-
-Dari riset berbagai sistem CBT (UNBK, CBT SEB, sistem CBT PMB kampus), fitur & tampilan standar yang harus ditiru:
-
-1. **Halaman login peserta** — menggunakan username/nomor peserta + password.
-2. **Token ujian** — kode yang dimasukkan sebelum memulai (diberikan "pengawas"); menambah nuansa realistis & keamanan sesi.
-3. **Halaman konfirmasi/detail ujian** — menampilkan nama ujian, jumlah soal, durasi, dan tombol "Mulai".
-4. **Area soal utama** — satu soal + pilihan jawaban (A–E) di tengah.
-5. **Navigasi nomor soal** — daftar nomor yang bisa diklik untuk loncat antar soal, dengan **indikator warna**:
-   - Putih/abu = belum dijawab
-   - Hijau/biru = sudah dijawab
-   - Kuning = ditandai ragu-ragu
-   - Highlight/hitam = soal aktif saat ini
-6. **Timer hitung mundur** — sisa waktu real-time; ujian otomatis submit saat waktu habis.
-7. **Tombol navigasi** — "Sebelumnya" & "Selanjutnya".
-8. **Tombol "Ragu-ragu"/"Tandai"** — menandai soal untuk diperiksa kembali.
-9. **Penyimpanan jawaban otomatis** — tiap kali pindah soal / interval waktu, agar tahan terhadap refresh/putus koneksi.
-10. **Tombol "Selesai"** — dengan dialog konfirmasi ("Apakah Anda yakin ingin mengakhiri ujian?") dan peringatan bila masih ada soal belum dijawab / masih ada tanda ragu.
-11. **Acak soal & acak opsi jawaban** — tiap peserta/percobaan mendapat urutan berbeda (anti-hafal urutan).
-12. **Halaman hasil** — skor per subtes & total setelah ujian selesai.
-
-Fitur tambahan yang umum: pengaturan ukuran font, mode gelap, dan kalkulator bawaan (opsional, tergantung tipe tes).
+Produk ini **bukan** aplikasi ujian resmi dan **tidak berafiliasi** dengan UIN SSC; murni alat latihan pribadi/edukatif.
 
 ---
 
-## 3. Tujuan & Sasaran (Goals)
+## 2. Hasil Deep Research (Temuan & Sumber)
 
-### 3.1 Tujuan Produk
-1. Menyediakan **simulasi pengalaman ujian CBT** yang senyata mungkin agar peserta terbiasa dengan mekanik, tekanan waktu, dan navigasi ujian sesungguhnya.
-2. Menyediakan **bank soal** sesuai kisi-kisi jalur mandiri UIN SSC (TPA, Kebahasaan, Kemampuan Bidang IPA/IPS, Keislaman, BTQ teori).
-3. Memberikan **umpan balik (skor + pembahasan)** untuk membantu peserta belajar dari kesalahan.
-4. Melacak **progres/riwayat** latihan dari waktu ke waktu.
+### 2.1 Struktur RESMI SPMB Mandiri UIN SSC 2026/2027 (acuan utama — tahun adik)
 
-### 3.2 Metrik Keberhasilan (Success Metrics)
-- Peserta dapat menyelesaikan minimal 1 paket simulasi penuh tanpa kendala teknis.
-- Waktu, navigasi, dan skoring berfungsi akurat (0 kesalahan hitung skor pada pengujian).
-- Peningkatan skor peserta antar percobaan (tren naik) sebagai indikator manfaat belajar.
-- Antarmuka dinilai "mirip CBT asli" secara subjektif oleh peserta.
+Sumber: Pengumuman resmi Rektor UIN SSC **Nomor 3686/Un.30/R/PP.00.9/06/2026** (ditandatangani elektronik 8 Juni 2026) dan pemberitaan resmi.
 
-### 3.3 Non-Goals (Bukan Tujuan)
-- Bukan sistem PMB resmi (tidak menangani pendaftaran, pembayaran, kelulusan nyata).
-- Tidak terintegrasi dengan sistem UIN SSC.
-- Tidak menyimpan data pribadi sensitif nyata.
+- **Pendaftaran:** online di `https://admisi.uinssc.ac.id/`, 8 Juni – 7 Juli 2026 (Reguler S1).
+- **Pilihan prodi:** maksimal 3 prodi; **wajib memilih 1 prodi keagamaan pada pilihan ke-3**.
+- **Prodi Akuntansi Syariah** berada di **Fakultas Ekonomi dan Bisnis Islam (FEBI)**, akreditasi *Baik Sekali*.
+- **Metode:** Computer Based Test (CBT).
+- **Jadwal (Reguler S1):** Cetak Kartu Ujian 15 Juni – 10 Juli 2026 · **Pelaksanaan Ujian CBT 13–15 Juli 2026** · Technical Meeting 16 Juli 2026 · **Pengumuman Hasil 22 Juli 2026**.
+- **MATA UJIAN YANG DIUJIKAN (2026): `A. Tes Potensi Akademik; B. Kebahasaan; C. Keislaman`.**
+  - **Tidak ada** Tes Kemampuan Bidang IPA/IPS (berbeda dari 2025).
+  - **Tidak ada** komponen "Baca Tulis Al-Quran" terpisah (di 2025 ada; di 2026 tidak dicantumkan — kemungkinan diserap ke dalam *Keislaman* atau technical meeting).
+- **Jumlah soal & durasi:** **TIDAK dipublikasikan** dalam pengumuman ("sesuai jadwal/ketentuan pada kartu ujian"). ⇒ Harus **dikonfigurasi**, dengan default estimasi (lihat §2.3).
 
----
+> **Perbandingan 2025 vs 2026:**
+> - **2025:** TKD (TPA + Kebahasaan) **+ Tes Kemampuan Bidang (IPA/IPS)** **+ Tes Baca Tulis Al-Quran** + wawancara.
+> - **2026:** **TPA + Kebahasaan + Keislaman** (3 komponen; tanpa IPA/IPS; tanpa BTQ terpisah).
 
-## 4. Persona Pengguna & User Stories
+### 2.2 UM-PTKIN (SSE) — referensi otoritatif untuk gaya soal, jumlah, dan durasi
 
-### 4.1 Persona
-- **Peserta (Adik / Camaba):** siswa SMA/MA/sederajat yang akan mengikuti SPMB Mandiri UIN. Butuh latihan yang realistis dan pembahasan.
-- **Admin (Kakak / Penyusun soal):** menyiapkan bank soal, membuat paket ujian, mengatur durasi & bobot, memantau hasil.
+UIN SSC juga menyelenggarakan **UM-PTKIN**, dan CBT mandiri-nya bergaya serupa. Struktur UM-PTKIN dipublikasikan resmi, sehingga menjadi **acuan terbaik** untuk merancang komposisi & gaya soal simulasi.
 
-### 4.2 User Stories
+**UM-PTKIN 2026 — 4 materi, total 121 soal / 140 menit** (dikerjakan berurutan, timer per bagian):
 
-**Sebagai Peserta:**
-- Saya ingin login dengan akun saya agar progres saya tersimpan.
-- Saya ingin memasukkan token dan melihat detail ujian sebelum mulai, seperti ujian asli.
-- Saya ingin mengerjakan soal dengan navigasi nomor, timer, dan tombol ragu-ragu.
-- Saya ingin jawaban saya tersimpan otomatis agar tidak hilang bila halaman ter-refresh.
-- Saya ingin melihat skor per subtes dan pembahasan setelah selesai.
-- Saya ingin melihat riwayat percobaan saya untuk memantau perkembangan.
+| # | Materi UM-PTKIN 2026 | Jumlah soal | Durasi |
+|---|---|---:|---:|
+| 1 | Penalaran Akademik (verbal, gambar/figural, kuantitatif) | 30 | 30 menit |
+| 2 | Penalaran Matematika (numerasi, interpretasi grafik/tabel) | 15 | 25 menit |
+| 3 | Literasi Membaca (B. Indonesia, B. Inggris, B. Arab) | 40 | 45 menit |
+| 4 | Literasi Ajaran Islam (Al-Qur'an, Hadis, Fikih, SKI) | 36 | 40 menit |
 
-**Sebagai Admin:**
-- Saya ingin menamb/mengedit/menghapus soal di bank soal dengan kategori/subtes.
-- Saya ingin membuat paket ujian dengan memilih jumlah soal per subtes, durasi, dan aturan pengacakan.
-- Saya ingin mengunggah soal secara massal (mis. via CSV/JSON) agar cepat.
-- Saya ingin melihat hasil/analitik peserta.
+*(Sebagai pembanding, UM-PTKIN 2025: PA 25/30', Matematika 15/20', Literasi Membaca 40/40', Literasi Ajaran Islam 30/30'.)*
 
----
+**Ciri penting yang WAJIB ditiru:** setiap materi/bagian punya **timer sendiri** dan dikerjakan **berurutan**; waktu dihitung sejak peserta membuka soal pertama tiap bagian. Jika waktu satu bagian habis, lanjut ke bagian berikutnya (tidak bisa kembali).
 
-## 5. Ruang Lingkup Fungsional (Functional Requirements)
+### 2.3 Pemetaan mata ujian UIN SSC 2026 → materi & komposisi simulasi
 
-### 5.1 Modul Autentikasi & Peserta
-- **FR-1.1** Registrasi/pembuatan akun peserta oleh admin, atau self-register sederhana (nama, nomor peserta, password).
-- **FR-1.2** Login peserta & admin (role-based access).
-- **FR-1.3** Halaman "Kartu Ujian" virtual (nama, nomor peserta, sesi, daftar mata ujian) meniru kartu ujian asli.
+Karena UIN SSC 2026 memakai 3 label (TPA, Kebahasaan, Keislaman) namun tidak merilis jumlah/durasi, kita petakan ke gaya UM-PTKIN dan tetapkan **default yang dapat diubah admin**:
 
-### 5.2 Modul Ujian / CBT (Inti)
-- **FR-2.1** Halaman daftar ujian yang tersedia diikuti peserta.
-- **FR-2.2** Input **token** sebelum memulai + halaman konfirmasi detail ujian (jumlah soal, durasi).
-- **FR-2.3** Tampilan soal: teks soal (dukung gambar & teks Arab RTL), opsi A–E.
-- **FR-2.4** Navigasi nomor soal dengan indikator warna status (belum dijawab / sudah / ragu / aktif).
-- **FR-2.5** Tombol Sebelumnya / Selanjutnya.
-- **FR-2.6** Tombol "Ragu-ragu / Tandai" (toggle).
-- **FR-2.7** **Timer hitung mundur** yang tahan refresh (dihitung dari waktu server/waktu mulai + durasi, bukan sekadar countdown di client).
-- **FR-2.8** **Auto-save** jawaban tiap perubahan/pindah soal; state ujian dapat dipulihkan bila peserta menutup/membuka ulang.
-- **FR-2.9** **Auto-submit** saat waktu habis.
-- **FR-2.10** Tombol "Selesai" dengan dialog konfirmasi + peringatan soal belum dijawab / masih ada tanda ragu.
-- **FR-2.11** **Acak urutan soal** & **acak urutan opsi** (dapat dikonfigurasi per paket).
-- **FR-2.12** Struktur ujian bersubtes (TPA, Kebahasaan, Bidang, Keislaman, BTQ) — bisa dalam satu sesi berurutan atau paket terpisah.
+| Mata Ujian UIN SSC 2026 | Isi (mengacu UM-PTKIN & pola UM UIN) | Default soal | Default durasi |
+|---|---|---:|---:|
+| **A. Tes Potensi Akademik (TPA)** | Penalaran **verbal** (sinonim, antonim, analogi, silogisme/logika), penalaran **gambar/figural** (deret & pola gambar), penalaran **kuantitatif/numerik** (deret angka, aritmetika, perbandingan, soal cerita) | 30 | 30 menit |
+| **B. Kebahasaan** | **Literasi B. Indonesia** (ide pokok, makna, ejaan, kalimat efektif), **B. Inggris** (grammar, vocabulary, reading), **B. Arab** (mufrodat, qawa'id/nahwu-sharf dasar, qira'ah) | 40 | 40 menit |
+| **C. Keislaman** | **Al-Qur'an & Hadis**, **Fikih** (thaharah, ibadah, muamalah dasar), **Akidah/Tauhid & Akhlak**, **Sejarah Kebudayaan Islam (SKI)**, konteks moderasi beragama | 30 | 30 menit |
+| **(Opsional) BTQ** | Teori tajwid & makharijul huruf (PG) **+ modul rekaman bacaan** (lihat §2.4) | 10 | — |
 
-### 5.3 Modul Skoring & Hasil
-- **FR-3.1** Skoring otomatis pilihan ganda; skor per subtes & total.
-- **FR-3.2** Halaman hasil: ringkasan skor, jumlah benar/salah/kosong per subtes.
-- **FR-3.3** **Review/pembahasan**: menampilkan soal, jawaban peserta, kunci, dan penjelasan.
-- **FR-3.4** Konfigurasi apakah pembahasan tampil langsung atau disembunyikan hingga admin mengizinkan.
+> **Total default simulasi inti: ~100 soal / ~100 menit** (3 subtes). Angka ini **estimasi acuan** (bukan angka resmi UIN SSC) dan **sepenuhnya dapat dikonfigurasi** admin saat kartu ujian/kisi resmi tersedia. Untuk mode "paling menantang", admin dapat menaikkan ke skala penuh UM-PTKIN (121 soal / 140 menit).
 
-### 5.4 Modul Bank Soal & Manajemen Ujian (Admin)
-- **FR-4.1** CRUD soal: pertanyaan, opsi, kunci, subtes/kategori, tingkat kesulitan, pembahasan, lampiran gambar.
-- **FR-4.2** Dukungan konten khusus: gambar (matematika/fisika), teks Arab (RTL & font Arab), format matematis dasar.
-- **FR-4.3** Import massal soal (CSV/JSON) & export.
-- **FR-4.4** CRUD paket ujian: pilih komposisi jumlah soal per subtes, durasi, aturan acak, token, jendela waktu aktif.
-- **FR-4.5** Manajemen peserta & reset sesi ujian bila ada kendala teknis.
-- **FR-4.6** Dashboard hasil/analitik dasar (rata-rata skor, per subtes, per peserta).
+**Rincian gaya soal (dari riset):**
+- **TPA – Verbal:** sinonim, antonim, padanan hubungan (analogi), pengelompokan kata, silogisme, logika cerita; konteks keindonesiaan, keislaman, sains-teknologi, pendidikan, kesehatan, ekonomi-bisnis, seni-budaya-olahraga.
+- **TPA – Gambar/Figural:** deret gambar, pola/simbol abstrak, hubungan ruang.
+- **TPA – Kuantitatif:** deret angka (mis. 2,4,8,16,…), operasi berurut, perbandingan, persentase, soal cerita matematis.
+- **Kebahasaan – Arab:** mufrodat kontekstual, qawa'id (isim, fi'il, huruf, jumlah ismiyyah & fi'liyyah), qira'ah, terjemah — **butuh dukungan teks RTL & font Arab.**
+- **Keislaman:** kemukjizatan Al-Qur'an, ilmu hadis (hadis/sunnah/khabar/atsar), ushul fikih dasar, ibadah, SKI; sering berbentuk stimulus/wacana lalu ditanya.
 
-### 5.5 Modul Riwayat & Progres (Peserta)
-- **FR-5.1** Daftar riwayat percobaan dengan skor & tanggal.
-- **FR-5.2** Grafik tren skor antar percobaan.
+### 2.4 Format BTQ (Baca Tulis Al-Qur'an) & keputusan modul rekaman
+
+- **Fakta:** BTQ **ada** sebagai mata ujian di **2025**, namun **tidak** tercantum sebagai mata ujian terpisah di pengumuman resmi **2026** (hanya TPA, Kebahasaan, Keislaman). Pada praktik penerimaan UIN, kemampuan baca Al-Qur'an lazim diuji **lisan/praktik** (membaca di hadapan penguji) dan/atau sebagai bagian technical meeting/verifikasi, bukan murni pilihan ganda. UM-PTKIN pun menyebut "kemampuan dasar baca-tulis Al-Qur'an" sebagai bagian literasi.
+- **Permintaan pengguna:** ingin ada **modul rekaman** untuk BTQ, "jika memang soal asli ada".
+- **Keputusan produk:** Sediakan **Modul BTQ (opsional, dapat diaktifkan/nonaktifkan admin)** yang terdiri dari:
+  1. **Bagian teori (PG):** tajwid, hukum bacaan (nun mati/tanwin, mim mati, mad), makharijul huruf, penulisan huruf hijaiyah — masuk skoring otomatis.
+  2. **Bagian praktik (rekaman audio):** sistem menampilkan potongan ayat, peserta **merekam bacaan** (rekam suara di browser), audio tersimpan, lalu **dinilai manual** oleh admin/penguji dengan rubrik (kelancaran, tajwid, makhraj) — atau sekadar untuk latihan mandiri (self-review). *Auto-grading bacaan Al-Qur'an di luar lingkup awal.*
+- **Default:** Modul BTQ **nonaktif** pada mode "Replika Resmi 2026" (agar benar-benar mirip ujian tahun ini), namun **tersedia** pada mode "Latihan Lengkap" karena bermanfaat dan diminta pengguna. Transparan bahwa ini di luar 3 mata ujian resmi 2026.
+
+### 2.5 Karakteristik aplikasi CBT/SSE yang wajib ditiru
+
+Dari riset UNBK, CBT SEB, SSE UM-PTKIN, dan CBT PMB kampus:
+1. **Login peserta** (nomor peserta + password) + **kartu ujian** virtual.
+2. **Token ujian** dari "pengawas" sebelum mulai.
+3. **Halaman konfirmasi/detail** (nama ujian, jumlah soal, durasi, petunjuk).
+4. **Area soal** (teks + gambar + teks Arab RTL), opsi A–E.
+5. **Navigasi nomor** dengan **indikator warna**: belum dijawab (putih/abu), sudah dijawab (hijau/biru), ragu-ragu (kuning), soal aktif (highlight).
+6. **Timer hitung mundur** berbasis waktu server; **per-subtes berurutan**; **auto-submit** saat habis.
+7. **Tombol Sebelumnya / Selanjutnya**, **Ragu-ragu/Tandai** (toggle).
+8. **Auto-save** tiap aksi + **pemulihan state** bila refresh/putus koneksi.
+9. **Tombol Selesai** + dialog konfirmasi + peringatan soal belum dijawab / masih ada tanda ragu.
+10. **Acak urutan soal & acak urutan opsi** per peserta/percobaan.
+11. **Halaman hasil** + **pembahasan**.
+12. Fitur bantu: ukuran font, mode gelap; (opsional) deteksi pindah tab untuk latihan disiplin.
 
 ---
 
-## 6. Kebutuhan Non-Fungsional (Non-Functional Requirements)
+## 3. Tujuan, Sasaran, Non-Goals
 
-- **NFR-1 Reliabilitas data ujian:** jawaban tidak boleh hilang saat refresh/putus koneksi (auto-save + pemulihan state). Timer berbasis server-time.
-- **NFR-2 Performa:** perpindahan antar soal < 300 ms; mendukung minimal beberapa peserta bersamaan (skala kecil, cukup untuk keluarga/kelas kecil).
-- **NFR-3 Kompatibilitas:** berjalan di browser desktop & tablet modern (Chrome, Firefox, Edge); layout responsif.
-- **NFR-4 Keamanan:** password ter-hash, proteksi role, kunci jawaban tidak terekspos ke client sebelum submit, validasi token sesi.
-- **NFR-5 Usability:** UI bersih meniru CBT asli, kontras baik, dukungan ukuran font & mode gelap (opsional).
-- **NFR-6 Aksesibilitas bahasa:** dukungan render teks Arab (RTL) yang benar.
-- **NFR-7 Maintainability:** kode modular, konfigurasi bank soal & paket mudah diubah tanpa ubah kode.
-- **NFR-8 Anti-kecurangan ringan (opsional):** deteksi pindah tab/blur window untuk latihan disiplin (peringatan/log), bukan proctoring penuh.
+### 3.1 Tujuan
+1. Simulasi CBT semirip mungkin dengan SPMB Mandiri UIN SSC 2026 (3 subtes, timer per-bagian, mekanik identik).
+2. Bank soal sesuai kisi TPA, Kebahasaan, Keislaman (+ opsi BTQ).
+3. Umpan balik: skor per subtes + pembahasan.
+4. Pelacakan progres antar percobaan.
+
+### 3.2 Metrik Keberhasilan
+- Adik dapat menyelesaikan ≥1 paket simulasi penuh tanpa kendala teknis.
+- Skoring & timer akurat (0 kesalahan pada uji).
+- Tren skor naik antar percobaan.
+- Penilaian subjektif "mirip aslinya" dari adik.
+
+### 3.3 Non-Goals
+- Bukan sistem PMB resmi (tanpa pendaftaran/pembayaran/kelulusan nyata).
+- Tidak terintegrasi sistem UIN SSC.
+- Tanpa proctoring kamera penuh; tanpa auto-grading bacaan Al-Qur'an (fase awal).
 
 ---
 
-## 7. Rancangan Alur Pengguna (User Flow)
+## 4. Persona & User Stories
+
+**Persona:**
+- **Peserta (Adik):** camaba Akuntansi Syariah; butuh latihan realistis + pembahasan.
+- **Admin (Kakak/penyusun):** menyiapkan bank soal, paket, memantau hasil, menilai rekaman BTQ.
+
+**User Stories — Peserta:**
+- Login & lihat kartu ujian virtual; masukkan token; baca detail ujian sebelum mulai.
+- Kerjakan **3 subtes berurutan** dengan **timer per subtes**, navigasi nomor, tandai ragu-ragu.
+- Jawaban tersimpan otomatis; aman saat refresh.
+- (Opsional BTQ) merekam bacaan ayat.
+- Lihat skor per subtes + pembahasan; lihat riwayat & tren.
+
+**User Stories — Admin:**
+- CRUD soal per subtes + pembahasan + lampiran (gambar, teks Arab, audio).
+- Buat paket ujian: pilih jumlah soal/durasi **per subtes**, aturan acak, token, jendela waktu, mode ("Replika Resmi 2026" / "Latihan Lengkap").
+- Import massal (CSV/JSON) & export.
+- Lihat hasil/analitik; nilai rekaman BTQ dengan rubrik.
+
+---
+
+## 5. Kebutuhan Fungsional (Functional Requirements)
+
+### 5.1 Autentikasi & Peserta
+- **FR-1.1** Akun peserta (dibuat admin atau self-register: nama, nomor peserta, password).
+- **FR-1.2** Login + role-based access (peserta/admin).
+- **FR-1.3** Kartu ujian virtual (nama, nomor, sesi, daftar subtes).
+
+### 5.2 Ujian / CBT (Inti)
+- **FR-2.1** Daftar ujian tersedia.
+- **FR-2.2** Input **token** + halaman konfirmasi (jumlah soal, durasi, petunjuk).
+- **FR-2.3** **Ujian multi-subtes berurutan** (TPA → Kebahasaan → Keislaman [→ BTQ opsional]); tiap subtes **timer independen**; saat waktu subtes habis, pindah otomatis ke subtes berikutnya (tidak bisa kembali). *(Meniru alur SSE UM-PTKIN.)*
+- **FR-2.4** Tampilan soal: teks kaya + gambar + **teks Arab RTL**; opsi A–E.
+- **FR-2.5** Navigasi nomor + indikator warna status (dibatasi pada subtes aktif).
+- **FR-2.6** Tombol Sebelumnya / Selanjutnya.
+- **FR-2.7** Tombol Ragu-ragu / Tandai (toggle).
+- **FR-2.8** Timer per-subtes berbasis **server-time** (tahan refresh/manipulasi client).
+- **FR-2.9** **Auto-save** tiap perubahan + **pemulihan state** saat masuk ulang.
+- **FR-2.10** **Auto-submit** subtes saat waktunya habis; auto-submit ujian saat subtes terakhir habis.
+- **FR-2.11** Tombol Selesai (per subtes / ujian) + dialog konfirmasi + peringatan soal kosong / tanda ragu.
+- **FR-2.12** Acak urutan soal & acak urutan opsi (dikonfigurasi per paket).
+
+### 5.3 Modul BTQ (Opsional)
+- **FR-3.1** Bagian teori BTQ (PG) — skoring otomatis.
+- **FR-3.2** Bagian praktik: **rekaman audio** bacaan ayat via browser (MediaRecorder), simpan file, kaitkan ke attempt.
+- **FR-3.3** Panel admin untuk memutar & **menilai rekaman** dengan rubrik (kelancaran, tajwid, makhraj) + catatan.
+- **FR-3.4** Toggle aktif/nonaktif modul BTQ per paket.
+
+### 5.4 Skoring & Hasil
+- **FR-4.1** Skoring otomatis PG; skor **per subtes** & total (dukung pembobotan).
+- **FR-4.2** Halaman hasil: benar/salah/kosong per subtes + total; (opsional) nilai BTQ manual digabung.
+- **FR-4.3** **Review/pembahasan** per soal: soal, jawaban peserta, kunci, penjelasan.
+- **FR-4.4** Konfigurasi tampil hasil langsung atau ditunda.
+
+### 5.5 Bank Soal & Manajemen Ujian (Admin)
+- **FR-5.1** CRUD soal: pertanyaan, opsi, kunci, subtes/sub-kategori, tingkat kesulitan, pembahasan, arah teks (LTR/RTL), lampiran gambar/audio.
+- **FR-5.2** Dukungan konten: gambar (figural/kuantitatif), **teks Arab (RTL + font)**, notasi matematis dasar, audio (BTQ).
+- **FR-5.3** Import massal (CSV/JSON) + export + template.
+- **FR-5.4** CRUD paket: komposisi **per subtes** (jumlah, durasi), acak, token, jendela aktif, mode ("Replika Resmi 2026" / "Latihan Lengkap").
+- **FR-5.5** Manajemen peserta + reset sesi bila ada kendala.
+- **FR-5.6** Dashboard analitik (rata-rata skor total & per subtes, per peserta, per sub-kategori untuk diagnosa kelemahan).
+
+### 5.6 Riwayat & Progres (Peserta)
+- **FR-6.1** Daftar riwayat percobaan (skor, tanggal, durasi).
+- **FR-6.2** Grafik tren skor + rincian per subtes (identifikasi materi lemah).
+
+---
+
+## 6. Kebutuhan Non-Fungsional
+
+- **NFR-1 Reliabilitas data ujian:** jawaban tidak hilang saat refresh/putus koneksi (auto-save + pemulihan). Timer berbasis server.
+- **NFR-2 Performa:** pindah soal < 300 ms; mendukung beberapa peserta bersamaan (skala kecil).
+- **NFR-3 Kompatibilitas:** browser desktop & tablet modern; responsif. **Rekaman audio** butuh izin mikrofon (HTTPS).
+- **NFR-4 Keamanan:** password ter-hash; kunci jawaban tak terekspos sebelum submit; validasi token & kepemilikan sesi.
+- **NFR-5 Usability:** UI meniru CBT asli; kontras baik; ukuran font & mode gelap.
+- **NFR-6 Aksesibilitas bahasa:** render **teks Arab RTL** benar (mis. font Amiri/Scheherazade).
+- **NFR-7 Maintainability:** komposisi soal/paket dapat diubah tanpa ubah kode.
+- **NFR-8 Anti-kecurangan ringan (opsional):** log pindah tab/blur untuk latihan disiplin (bukan proctoring penuh).
+
+---
+
+## 7. Alur Pengguna (User Flow)
 
 ```
-[Login Peserta]
-      │
+[Login Peserta] → [Dashboard: Kartu Ujian, Riwayat]
+      │ pilih paket → [Detail Ujian + Token] (nama, jumlah soal, durasi, petunjuk)
       ▼
-[Dashboard Peserta] ── lihat Kartu Ujian, Riwayat
-      │  (pilih paket simulasi)
+[SUBTES 1: TPA]  timer 30' ─┐
+[SUBTES 2: Kebahasaan] 40' ─┼─ berurutan, timer independen, auto-lanjut saat habis
+[SUBTES 3: Keislaman] 30' ─┘
+[(opsional) BTQ: teori PG + rekaman audio]
+   ├── area soal (A–E), navigasi warna, ragu-ragu, prev/next, auto-save
+   └── Selesai (konfirmasi) / waktu habis → auto-submit
       ▼
-[Detail Ujian + Input Token] ── tampil: nama, jumlah soal, durasi
-      │  (klik "Mulai")
+[Skoring otomatis] → [Hasil: skor per subtes + total]
+      │ (BTQ rekaman → dinilai admin manual → nilai digabung)
       ▼
-[Halaman Ujian CBT]
-   ├── Area soal (A–E)
-   ├── Navigasi nomor (warna status)
-   ├── Timer hitung mundur (server-based)
-   ├── Tombol Ragu-ragu / Prev / Next
-   └── Auto-save tiap aksi
-      │  (klik "Selesai" → konfirmasi)  atau (waktu habis → auto-submit)
-      ▼
-[Skoring Otomatis]
-      │
-      ▼
-[Halaman Hasil] ── skor per subtes + total
-      │  (klik "Lihat Pembahasan")
-      ▼
-[Review/Pembahasan per soal]
+[Review/Pembahasan per soal] → [Riwayat & tren]
 ```
 
 ---
@@ -221,90 +235,108 @@ Fitur tambahan yang umum: pengaturan ukuran font, mode gelap, dan kalkulator baw
 
 | Entitas | Field utama |
 |---|---|
-| **User** | id, nama, nomor_peserta, password_hash, role (peserta/admin) |
-| **Subtest** | id, nama (TPA/Bahasa/IPA/IPS/Keislaman/BTQ), deskripsi |
-| **Question** | id, subtest_id, teks (rich/HTML), gambar_url, tipe (PG), tingkat_kesulitan, arah_teks (LTR/RTL), pembahasan |
+| **User** | id, nama, nomor_peserta, password_hash, role |
+| **Subtest** | id, kode (TPA/BAHASA/KEISLAMAN/BTQ), nama, deskripsi |
+| **SubCategory** | id, subtest_id, nama (mis. Verbal, Figural, Kuantitatif / Indonesia, Inggris, Arab / Quran-Hadis, Fikih, Akidah-Akhlak, SKI) |
+| **Question** | id, subtest_id, subcategory_id, teks (HTML), gambar_url, audio_prompt_url, tipe (PG/REKAMAN), tingkat_kesulitan, arah_teks (LTR/RTL), pembahasan |
 | **Option** | id, question_id, label (A–E), teks, is_correct |
-| **ExamPackage** | id, nama, durasi_menit, token, komposisi_subtes (JSON: subtest_id→jumlah_soal), acak_soal, acak_opsi, jendela_aktif |
-| **Attempt** | id, user_id, package_id, waktu_mulai, waktu_selesai, status (berlangsung/selesai), skor_total |
-| **AttemptAnswer** | id, attempt_id, question_id, option_id_dipilih, ragu (bool), waktu_update |
+| **ExamPackage** | id, nama, mode (REPLIKA_2026/LATIHAN_LENGKAP), token, jendela_aktif, komposisi (JSON: per subtest → {jumlah, durasi_menit, acak_soal, acak_opsi}) |
+| **Attempt** | id, user_id, package_id, waktu_mulai, waktu_selesai, status, skor_total |
+| **AttemptSection** | id, attempt_id, subtest_id, waktu_mulai, waktu_selesai_efektif, status |
+| **AttemptAnswer** | id, attempt_section_id, question_id, option_id_dipilih, ragu (bool), waktu_update |
+| **AttemptRecording** | id, attempt_section_id, question_id, audio_url, nilai_manual, catatan_penguji |
 | **AttemptScore** | id, attempt_id, subtest_id, benar, salah, kosong, skor |
 
 ---
 
-## 9. Rekomendasi Teknis (Usulan, dapat disesuaikan)
+## 9. Rekomendasi Teknis (Usulan)
 
-Karena ini proyek skala kecil dengan kebutuhan realtime-timer & auto-save, usulan stack:
+- **Frontend:** React (Vite) + Tailwind CSS; state ringan (Zustand). Dukungan **RTL** untuk Arab; **MediaRecorder API** untuk rekaman BTQ.
+- **Backend:** Node.js (NestJS/Express) atau Laravel — REST API; **otoritatif atas waktu (server-time)**; endpoint auto-save, skoring, upload audio.
+- **Database:** PostgreSQL/MySQL (relasional). SQLite untuk versi paling ringan (1–2 pengguna).
+- **Penyimpanan audio:** file lokal/objek storage (mis. folder terproteksi atau S3-compatible).
+- **Auth:** JWT/session + hashing (argon2/bcrypt).
+- **Deploy:** VPS kecil / Railway / Render (butuh HTTPS untuk izin mikrofon).
 
-- **Frontend:** React (Vite) + Tailwind CSS untuk UI cepat & responsif; state management ringan (Zustand/Context). Dukungan RTL untuk teks Arab.
-- **Backend:** Node.js (Express/NestJS) **atau** Laravel (PHP) — pilih yang paling dikuasai. Menyediakan REST API untuk soal, attempt, auto-save, skoring, dan otoritatif atas waktu (server time).
-- **Database:** PostgreSQL atau MySQL (relasional, cocok untuk model di atas). SQLite dapat dipakai untuk versi paling ringan/single-user.
-- **Autentikasi:** JWT/session + hashing (bcrypt/argon2).
-- **Deploy:** cukup satu VPS / layanan gratis (mis. Railway/Render/Vercel+backend) untuk pemakaian keluarga.
-
-> Alternatif "cepat jadi" (Fase MVP tercepat): aplikasi web tunggal dengan data soal disimpan sebagai file JSON + penyimpanan progres di `localStorage`/backend ringan, bila hanya untuk 1–2 pengguna. Keputusan final diambil saat fase implementasi.
-
----
-
-## 10. Rencana Rilis Bertahap (Milestones)
-
-**Fase 0 — Persiapan konten**
-- Kumpulkan/tulis bank soal awal per subtes beserta kunci & pembahasan (target minimal 1 paket lengkap per kelompok IPA & IPS).
-
-**Fase 1 — MVP CBT Inti**
-- Login peserta, satu paket ujian, tampilan soal, navigasi nomor + indikator warna, timer, ragu-ragu, auto-save, submit, skoring, halaman hasil sederhana.
-
-**Fase 2 — Bank Soal & Admin**
-- Panel admin CRUD soal & paket, import massal, acak soal/opsi, pembahasan, riwayat & tren skor.
-
-**Fase 3 — Penyempurnaan Realisme & QoL**
-- Token ujian, kartu ujian virtual, dukungan gambar & teks Arab RTL, mode gelap, ukuran font, konfigurasi bobot subtes, dashboard analitik.
-
-**Fase 4 (Opsional / Lanjutan)**
-- Modul BTQ berbasis rekaman audio (peserta merekam bacaan, admin menilai manual).
-- Deteksi pindah tab / mode fokus untuk latihan disiplin.
-- Multi-sesi & multi-peserta bersamaan.
+> Alternatif MVP tercepat: satu web app, bank soal file JSON, progres di backend ringan/localStorage untuk 1–2 pengguna. Keputusan final saat implementasi.
 
 ---
 
-## 11. Di Luar Lingkup (Out of Scope)
+## 10. Strategi Sumber Soal (Hybrid)
 
-- Pendaftaran resmi, pembayaran, virtual account, dan proses kelulusan nyata.
-- Wawancara (bagian dari seleksi asli, tidak disimulasikan dalam CBT ini).
-- Proctoring/pengawasan kamera penuh seperti ujian daring resmi.
-- Penilaian esai otomatis / AI grading (semua soal simulasi berbentuk pilihan ganda; BTQ = teori PG pada fase awal).
+Sesuai permintaan (hybrid) dan agar **mirip aslinya**:
+1. **Adaptasi bergaya UM-PTKIN & UM UIN** — susun soal baru mengikuti kisi & gaya resmi (verbal/figural/kuantitatif; literasi ID/EN/AR; Al-Qur'an-Hadis/Fikih/Akidah-Akhlak/SKI). Ini tulang punggung agar realistis.
+2. **Kurasi dari bank latihan publik** — soal try-out UM-PTKIN/UM UIN yang boleh dipakai untuk edukasi, ditulis ulang/diverifikasi agar tidak melanggar hak cipta.
+3. **Buatan sendiri** untuk mengisi celah materi/tingkat kesulitan tertentu.
+4. Setiap soal wajib punya **kunci + pembahasan + tag subkategori + tingkat kesulitan** agar analitik kelemahan berjalan.
+5. **Verifikasi kebenaran** oleh orang kompeten (khususnya Bahasa Arab & Keislaman).
+
+Target awal: minimal **1 paket penuh** (≈100 soal: TPA 30, Kebahasaan 40, Keislaman 30) + (opsional) 10 soal teori BTQ & 3–5 prompt rekaman.
 
 ---
 
-## 12. Risiko & Mitigasi
+## 11. Rencana Rilis Bertahap
+
+**Fase 0 — Konten awal:** susun 1 paket penuh (TPA/Kebahasaan/Keislaman) + kunci + pembahasan; siapkan aset RTL Arab.
+
+**Fase 1 — MVP CBT inti:** login, 1 paket, **3 subtes berurutan dengan timer per-subtes**, navigasi + indikator warna, ragu-ragu, auto-save, auto-submit, skoring, hasil per subtes.
+
+**Fase 2 — Bank soal & admin:** CRUD soal & paket, import massal, acak soal/opsi, pembahasan, riwayat & tren, analitik per subkategori.
+
+**Fase 3 — Realisme & QoL:** token, kartu ujian virtual, dukungan gambar & **teks Arab RTL**, mode gelap, ukuran font, mode paket ("Replika 2026"/"Latihan Lengkap").
+
+**Fase 4 — Modul BTQ & lanjutan:** teori BTQ (PG) + **rekaman audio** + rubrik penilaian admin; (opsional) deteksi pindah tab; multi-sesi/multi-peserta.
+
+---
+
+## 12. Di Luar Lingkup (Out of Scope)
+
+- Pendaftaran/pembayaran/kelulusan resmi.
+- Wawancara & technical meeting (bagian proses asli, tidak disimulasikan CBT).
+- Proctoring kamera penuh.
+- Auto-grading bacaan Al-Qur'an (penilaian BTQ = manual pada fase awal).
+- Tes Kemampuan Bidang IPA/IPS (tidak ada pada skema resmi 2026).
+
+---
+
+## 13. Risiko & Mitigasi
 
 | Risiko | Dampak | Mitigasi |
 |---|---|---|
-| Kisi-kisi resmi UIN SSC tidak rinci/berubah tiap tahun | Materi simulasi kurang akurat | Buat komposisi subtes yang dapat dikonfigurasi admin; verifikasi ulang saat pengumuman terbaru rilis |
-| Kualitas & kebenaran soal buatan sendiri | Peserta belajar hal keliru | Review soal oleh orang yang kompeten; sertakan sumber/pembahasan |
-| Kehilangan jawaban saat koneksi putus | Frustrasi & data hilang | Auto-save ke server + pemulihan state; timer berbasis server |
-| Timer tidak akurat (manipulasi client) | Latihan tidak realistis | Hitung sisa waktu dari `waktu_mulai + durasi` di server |
-| Hak cipta materi soal pihak ketiga | Masalah legal/etis | Gunakan soal buatan sendiri atau sumber yang boleh dipakai untuk edukasi |
+| Jumlah soal/durasi resmi UIN SSC tidak dipublikasikan & bisa berubah | Simulasi kurang presisi | Semua komposisi **dapat dikonfigurasi**; default mengacu UM-PTKIN; perbarui saat kartu ujian/kisi rilis |
+| BTQ tidak ada di skema resmi 2026 tapi tetap ingin dilatih | Kebingungan cakupan | Jadikan **modul opsional**, default nonaktif di mode Replika 2026; transparan di UI |
+| Kualitas/kebenaran soal (khususnya Arab & Keislaman) | Salah belajar | Review ahli; sertakan sumber & pembahasan |
+| Kehilangan jawaban saat koneksi putus | Frustrasi | Auto-save server + pemulihan; timer server |
+| Manipulasi timer di client | Latihan tak realistis | Sisa waktu dihitung server (waktu_mulai + durasi per subtes) |
+| Hak cipta soal pihak ketiga | Masalah legal/etis | Tulis ulang/soal sendiri; hanya sumber yang boleh untuk edukasi |
+| Izin mikrofon/browser untuk rekaman BTQ | Fitur gagal | Wajib HTTPS; fallback unggah file audio |
 
 ---
 
-## 13. Pertanyaan Terbuka (Open Questions)
+## 14. Ringkasan Keputusan (menjawab pertanyaan terbuka v1.0)
 
-1. Kelompok mana yang menjadi fokus adik — **IPA atau IPS** (menentukan Tes Kemampuan Bidang)?
-2. Program studi tujuan (memengaruhi penekanan Keislaman/BTQ)?
-3. Apakah komponen **BTQ** cukup disimulasikan sebagai soal teori PG, atau perlu modul rekaman audio?
-4. Berapa **durasi & jumlah soal** target yang ingin ditiru (bila ada info dari kartu ujian asli)? Referensi UIN lain: ~85 soal / 90 menit.
-5. Berapa banyak pengguna (hanya adik, atau beberapa teman) — memengaruhi pilihan stack & deployment.
-6. Sumber soal: menulis sendiri, atau mengadaptasi dari kumpulan latihan yang sudah ada?
+- **Kelompok IPA/IPS:** **tidak relevan** untuk 2026 — skema resmi menghapus Tes Kemampuan Bidang; adik cukup fokus **TPA, Kebahasaan, Keislaman**. (Konsisten: adik tidak ditanya IPA/IPS.)
+- **Prodi:** Akuntansi Syariah (FEBI). Tidak mengubah mata ujian (sama untuk semua prodi di 2026), namun **pilihan ke-3 wajib prodi keagamaan** — relevan untuk strategi pendaftaran, bukan materi ujian.
+- **BTQ:** disediakan sebagai **modul opsional dengan rekaman audio** (teori PG + praktik rekam), sesuai permintaan; transparan bahwa bukan bagian 3 mata ujian resmi 2026.
+- **Sumber soal:** **hybrid** (adaptasi gaya UM-PTKIN/UM UIN + kurasi + buatan sendiri), semua dengan kunci & pembahasan.
+- **Jumlah/durasi:** default **~100 soal / ~100 menit** (TPA 30/30', Kebahasaan 40/40', Keislaman 30/30'), **dapat dikonfigurasi**; mode "Latihan Lengkap" bisa skala penuh UM-PTKIN (121/140').
 
 ---
 
 ## Lampiran A — Referensi Riset
 
-- Pengumuman resmi SPMB Mandiri Reguler UIN SSC TA 2025/2026, Nomor B-3564/Un.30/R/PP.00.9/06/2025 (materi ujian: TKD [TPA + Kebahasaan], Tes Kemampuan Bidang IPA/IPS, Tes BTQ; CBT 15–17 Juli 2025).
-- Berita pelaksanaan SPMB Mandiri UIN Siber Cirebon 2025 (seleksi CBT + wawancara, ~400 peserta, 5 sesi).
-- FAQ & pengumuman Admisi UIN Sunan Kalijaga (contoh format Mandiri CBT: 85 soal / 90 menit; subtes TPA, Dirasah Islamiyah, Bahasa Arab & Inggris, Kemampuan Dasar IPA/IPS) — sebagai acuan pola.
-- Kisi-kisi Seleksi Mandiri UIN (mis. UIN Sumatera Utara): rincian TPA, Keislaman, Bahasa Arab, Bahasa Inggris.
-- Panduan/manual sistem CBT (UNBK, CBT SEB, CBT PMB kampus) — acuan fitur & tampilan: login, token, navigasi nomor + indikator warna, timer, ragu-ragu, auto-save, konfirmasi selesai, acak soal/opsi.
+**Resmi UIN SSC:**
+- Pengumuman SPMB Mandiri Reguler UIN SSC **2026/2027**, Nomor **3686/Un.30/R/PP.00.9/06/2026** (mata ujian: **TPA, Kebahasaan, Keislaman**; CBT 13–15 Juli 2026; Akuntansi Syariah = FEBI). URL: `https://info.uinssc.ac.id/wp-content/uploads/2026/06/Pengumuman-SPMB-Mandiri-Tahun-2026-Revisi-1.pdf`
+- Pengumuman SPMB Mandiri **2025/2026**, Nomor B-3564/Un.30/R/PP.00.9/06/2025 (2025: TKD [TPA+Kebahasaan] + Bidang IPA/IPS + BTQ).
+- Berita resmi info.uinssc.ac.id & rakyatcirebon.disway.id (jadwal & materi 2026); berita 2024/2025 (CBT + wawancara, ~400–440 peserta).
 
-> Catatan: rincian jumlah soal & durasi spesifik UIN SSC belum dipublikasikan detail; angka pada dokumen ini adalah estimasi acuan dan harus dikonfirmasi/diatur ulang. Produk dirancang agar parameter ini dapat dikonfigurasi.
+**UM-PTKIN (acuan gaya/jumlah/durasi):**
+- um.ptkin.ac.id (materi: Penalaran Akademik, Penalaran Matematika, Literasi Membaca, Literasi Ajaran Islam; SSE luring).
+- Tirto/Tribunnews/Bernas/Mamikos/IDN Times: rincian jumlah soal & durasi UM-PTKIN 2025 & 2026 (2026: 121 soal/140'; PA 30/30', Matematika 15/25', Literasi Membaca 40/45', Literasi Ajaran Islam 36/40').
+- UIN Sunan Gunung Djati: SSE UM-PTKIN 2026 (Tes Literasi mencakup **kemampuan dasar baca-tulis Al-Qur'an**).
+- UIN Sunan Kalijaga & UIN Sumatera Utara: pola Mandiri CBT (TPA, Dirasah Islamiyah, Bahasa Arab & Inggris) — pembanding.
+
+**Referensi fitur/tampilan CBT:**
+- Manual CBT SEB, UNBK (simadrasah), CBT PMB (vitka, TMF), dokumen fitur standar CBT: login, token, navigasi nomor + indikator warna, timer, ragu-ragu, auto-save, konfirmasi selesai, acak soal/opsi, timer per-bagian berurutan (SSE UM-PTKIN).
+
+> **Disclaimer:** Jumlah soal & durasi spesifik **SPMB Mandiri UIN SSC** tidak dipublikasikan resmi (mengacu kartu ujian). Angka pada dokumen ini adalah **estimasi acuan berbasis UM-PTKIN** dan dirancang agar **dapat dikonfigurasi**. Perbarui saat informasi resmi (kartu ujian/technical meeting 16 Juli 2026) tersedia.
