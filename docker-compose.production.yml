@@ -8,6 +8,7 @@ services:
       NODE_ENV: production
       AUTH_SECRET: ${AUTH_SECRET}
       DATABASE_URL: file:./prod.db
+      COOKIE_SECURE: "false"
     volumes:
       - cbt-prisma:/app/prisma
       - cbt-uploads:/app/uploads
