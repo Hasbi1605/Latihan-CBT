@@ -1,11 +1,16 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "../src/generated/prisma";
 import type { SeedQuestion } from "./data/types";
-import { tpaQuestions } from "./data/tpa";
-import { bahasaQuestions } from "./data/bahasa";
-import { keislamanQuestions } from "./data/keislaman";
-import { btqQuestions } from "./data/btq";
+import {
+  tpaQuestions,
+  bahasaQuestions,
+  keislamanQuestions,
+  btqQuestions,
+  BANK_STATS,
+} from "./data/index";
 
+/** Jumlah soal per subtes pada paket replika (acuan UM-PTKIN, diambil acak dari bank). */
+const REPLIKA_COUNTS = { tpa: 30, bahasa: 40, keislaman: 30 } as const;
 const prisma = new PrismaClient();
 const LABELS = ["A", "B", "C", "D", "E", "F"];
 
@@ -29,6 +34,7 @@ async function insertSubtest(
         teks: q.teks,
         tipe,
         arahTeks: q.arahTeks ?? "LTR",
+        gambarUrl: q.gambarUrl ?? null,
         tingkat: q.tingkat ?? "SEDANG",
         pembahasan: q.pembahasan,
         ...(tipe === "PG" && q.opsi
@@ -106,7 +112,7 @@ async function main() {
           {
             subtestId: tpa.id,
             urutan: 1,
-            jumlahSoal: tpaQuestions.length,
+            jumlahSoal: REPLIKA_COUNTS.tpa,
             durasiDetik: 30 * 60,
             acakSoal: true,
             acakOpsi: true,
@@ -114,7 +120,7 @@ async function main() {
           {
             subtestId: bahasa.id,
             urutan: 2,
-            jumlahSoal: bahasaQuestions.length,
+            jumlahSoal: REPLIKA_COUNTS.bahasa,
             durasiDetik: 40 * 60,
             acakSoal: true,
             acakOpsi: true,
@@ -122,7 +128,7 @@ async function main() {
           {
             subtestId: keislaman.id,
             urutan: 3,
-            jumlahSoal: keislamanQuestions.length,
+            jumlahSoal: REPLIKA_COUNTS.keislaman,
             durasiDetik: 30 * 60,
             acakSoal: true,
             acakOpsi: true,
@@ -134,6 +140,45 @@ async function main() {
 
   const btqSub = await prisma.subtest.findUnique({ where: { kode: "BTQ" } });
   if (btqSub) {
+    await prisma.examPackage.create({
+      data: {
+        nama: "Latihan Intensif (Bank Penuh)",
+        mode: "LATIHAN_INTENSIF",
+        token: "INTENSIF",
+        deskripsi:
+          "Latihan panjang: 50 soal per subtes inti, diacak dari bank lengkap (~100+ per subtes).",
+        aktif: true,
+        sections: {
+          create: [
+            {
+              subtestId: tpa.id,
+              urutan: 1,
+              jumlahSoal: 50,
+              durasiDetik: 50 * 60,
+              acakSoal: true,
+              acakOpsi: true,
+            },
+            {
+              subtestId: bahasa.id,
+              urutan: 2,
+              jumlahSoal: 50,
+              durasiDetik: 55 * 60,
+              acakSoal: true,
+              acakOpsi: true,
+            },
+            {
+              subtestId: keislaman.id,
+              urutan: 3,
+              jumlahSoal: 50,
+              durasiDetik: 50 * 60,
+              acakSoal: true,
+              acakOpsi: true,
+            },
+          ],
+        },
+      },
+    });
+
     await prisma.examPackage.create({
       data: {
         nama: "Latihan Lengkap + BTQ (Opsional)",
@@ -200,8 +245,11 @@ async function main() {
   });
 
   console.log("\nSeed selesai ✔");
-  console.log(`Soal: TPA ${tpaQuestions.length}, BAHASA ${bahasaQuestions.length}, KEISLAMAN ${keislamanQuestions.length}, BTQ ${pgBtq} PG + ${rekBtq} rekaman`);
-  console.log("Paket REPLIKA_2026 token: UINSSC2026");
+  console.log(
+    `Bank soal: TPA ${BANK_STATS.tpa}, BAHASA ${BANK_STATS.bahasa}, KEISLAMAN ${BANK_STATS.keislaman}, BTQ ${pgBtq} PG + ${rekBtq} rekaman (total ${BANK_STATS.total})`,
+  );
+  console.log(`Paket REPLIKA_2026: ${REPLIKA_COUNTS.tpa}+${REPLIKA_COUNTS.bahasa}+${REPLIKA_COUNTS.keislaman} soal — token UINSSC2026`);
+  console.log("Paket LATIHAN_INTENSIF: 50+50+50 soal — token INTENSIF");
   console.log("Paket LATIHAN_LENGKAP token: LATIHANBTQ");
   console.log("Login peserta: 1234567890 / password");
   console.log("Login admin: admin / admin123");

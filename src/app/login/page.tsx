@@ -136,6 +136,7 @@ export default function LoginPage() {
             menyerupai pengalaman SPMB Mandiri UIN Siber Cirebon.
           </p>
           <ul className="mt-6 space-y-2 text-sm text-emerald-50/90">
+            <li>✓ Bank ~300 soal latihan (acak per percobaan)</li>
             <li>✓ Replika 3 subtes resmi 2026</li>
             <li>✓ Auto-save & riwayat latihan</li>
             <li>✓ Modul BTQ opsional (rekaman)</li>

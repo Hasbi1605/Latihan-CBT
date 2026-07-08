@@ -1,8 +1,8 @@
 # Audit Bank Soal — Latihan CBT UIN SSC
 
-**Tanggal:** 2026-07-08  
-**Total soal:** 111 (108 PG + 3 rekaman BTQ)  
-**Sumber data:** `prisma/data/*.ts`  
+**Tanggal:** 2026-07-08 (diperbarui)  
+**Total soal:** 311 (308 PG + 3 rekaman BTQ)  
+**Sumber data:** `prisma/data/*.ts` (bank inti + ekspansi kurasi UM-PTKIN)  
 **Script otomatis:** `npm run audit:questions`
 
 ---
@@ -11,14 +11,14 @@
 
 | Subtes | Jumlah | Status struktural | Status faktual |
 |--------|--------|-------------------|----------------|
-| TPA | 30 | ✅ Lulus | ⚠️ Latihan — tidak ada soal figural/gambar |
-| Bahasa Indonesia | 14 | ✅ Lulus | ✅ Umumnya valid |
-| Bahasa Inggris | 13 | ✅ Lulus | ✅ Umumnya valid |
-| Bahasa Arab | 13 | ✅ Lulus | ✅ Umumnya valid |
-| Keislaman | 30 | ✅ Lulus | ⚠️ Perlu review ahli (fikih, hadis, sejarah) |
-| BTQ | 11 (8 PG + 3 rekaman) | ✅ Lulus | ✅ Diperbaiki (2 error kritis) |
+| TPA | 100 | ✅ Lulus | ✅ Verbal/kuantitatif + **8 figural** (SVG) |
+| Bahasa Indonesia | ~34 | ✅ Lulus | ✅ Diperkaya |
+| Bahasa Inggris | ~33 | ✅ Lulus | ✅ Diperkaya |
+| Bahasa Arab | ~33 | ✅ Lulus | ⚠️ Review native speaker disarankan |
+| Keislaman | 100 | ✅ Lulus | ⚠️ Review ahli disarankan (fikih mendalam) |
+| BTQ | 11 (8 PG + 3 rekaman) | ✅ Lulus | ✅ Error kritis sudah diperbaiki |
 
-**Kesimpulan:** Bank soal **layak dipakai untuk latihan**, dengan catatan bahwa ini **bukan soal resmi SPMB UIN SSC** dan sebagian butuh validasi ahli sebelum dipakai sebagai acuan ujian sungguhan.
+**Kesimpulan:** Bank soal **lebih mendekati format UM-PTKIN** untuk latihan. Tetap **bukan soal resmi SPMB UIN SSC**. Paket Replika mengacak 30/40/30 dari bank; paket Intensif 50/50/50.
 
 ---
 
@@ -48,12 +48,11 @@
 
 ## Temuan per Subtes
 
-### TPA (30 soal)
+### TPA (100 soal)
 
-- **Struktur:** Semua soal punya 5 opsi, kunci valid, pembahasan ada.
-- **Kualitas:** Soal verbal, numerik, logika, dan deret angka — konsisten dengan latihan TPA umum.
-- **Gap:** Tidak ada soal **figural/spasial** (hanya teks). Ujian TPA asli sering menyertakan pola gambar.
-- **Rekomendasi:** Tambah 5–10 soal figural jika ingin mendekati format ujian sungguhan.
+- **Struktur:** 30 inti + 62 ekspansi + 8 figural dengan `gambarUrl` SVG.
+- **Kualitas:** Verbal (sinonim, antonim, analogi, silogisme), kuantitatif, logika, deret angka, soal cerita.
+- **Figural:** 8 soal pola gambar di `public/images/tpa/figural/`.
 
 ### Bahasa Indonesia (14 soal)
 
@@ -113,4 +112,5 @@ Memeriksa:
 
 ## Changelog Audit
 
+- 2026-07-08 — Ekspansi bank ke 311 soal; kurasi gaya UM-PTKIN; 8 TPA figural; paket Intensif; disclaimer dashboard.
 - 2026-07-08 — Audit penuh 111 soal; perbaikan BTQ iqlab & idgham; typo Bahasa Indonesia; script `audit:questions`.
