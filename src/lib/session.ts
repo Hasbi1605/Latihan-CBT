@@ -23,10 +23,10 @@ function secretKey() {
 
 export const SESSION_COOKIE = "cbt_session";
 
-/** Secure cookie hanya jika request HTTPS (via X-Forwarded-Proto dari reverse proxy). */
+/** Secure cookie hanya jika COOKIE_SECURE=true atau request HTTPS eksplisit. */
 export function sessionCookieSecure(req: Request): boolean {
-  if (process.env.COOKIE_SECURE === "false") return false;
   if (process.env.COOKIE_SECURE === "true") return true;
+  if (process.env.COOKIE_SECURE === "false") return false;
   const proto = req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
   return proto === "https";
 }
@@ -39,6 +39,20 @@ export function sessionCookieOptions(req: Request) {
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   };
+}
+
+/** Header Set-Cookie manual — menghindari Next.js memaksa Secure di production. */
+export function sessionCookieHeader(token: string, req: Request): string {
+  const opts = sessionCookieOptions(req);
+  const parts = [
+    `${SESSION_COOKIE}=${token}`,
+    `Path=${opts.path}`,
+    `Max-Age=${opts.maxAge}`,
+    "HttpOnly",
+    `SameSite=${opts.sameSite === "lax" ? "Lax" : opts.sameSite}`,
+  ];
+  if (opts.secure) parts.push("Secure");
+  return parts.join("; ");
 }
 
 export type SessionRole = "PESERTA" | "ADMIN";

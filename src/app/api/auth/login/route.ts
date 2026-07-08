@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth";
-import { SESSION_COOKIE, createSessionToken, sessionCookieOptions } from "@/lib/session";
+import { createSessionToken, sessionCookieHeader } from "@/lib/session";
 
 export async function POST(req: Request) {
   let body: { nomorPeserta?: string; password?: string };
@@ -38,13 +37,7 @@ export async function POST(req: Request) {
   });
 
   const store = await cookies();
-  store.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
+  store.set(SESSION_COOKIE, token, sessionCookieOptions(req));
 
   return NextResponse.json({
     user: {
