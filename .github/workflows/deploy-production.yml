@@ -12,8 +12,28 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
     steps:
+      - name: Cek secrets wajib
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in DEPLOY_HOST DEPLOY_USER DEPLOY_SSH_KEY AUTH_SECRET; do
+            if [ -z "${!name:-}" ]; then
+              echo "MISSING secret: $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" = "1" ]; then
+            echo "Tambahkan secrets di GitHub: Settings → Secrets → Actions"
+            echo "Lihat deploy/GITHUB-ACTIONS-SETUP.md"
+            exit 1
+          fi
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+
       - name: Deploy ke Droplet via SSH
         uses: appleboy/ssh-action@v1.2.2
         env:
@@ -23,7 +43,6 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           envs: AUTH_SECRET
-          script_stop: true
           command_timeout: 30m
           script: |
             set -euo pipefail
@@ -32,13 +51,14 @@ jobs:
             bash deploy/remote-deploy.sh
 
       - name: Verifikasi publik (HTTP)
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
           set -euo pipefail
-          HOST='${{ secrets.DEPLOY_HOST }}'
-          echo ">> GET http://${HOST}/login"
-          curl -fsS -o /dev/null -w "login page: %{http_code}\n" "http://${HOST}/login"
+          echo ">> GET http://${DEPLOY_HOST}/login"
+          curl -fsS -o /dev/null -w "login page: %{http_code}\n" "http://${DEPLOY_HOST}/login"
           echo ">> POST login API"
-          headers=$(curl -s -D - -o /dev/null -X POST "http://${HOST}/api/auth/login" \
+          headers=$(curl -s -D - -o /dev/null -X POST "http://${DEPLOY_HOST}/api/auth/login" \
             -H "Content-Type: application/json" \
             -d '{"nomorPeserta":"1234567890","password":"password"}')
           echo "$headers" | grep -i '^HTTP'
