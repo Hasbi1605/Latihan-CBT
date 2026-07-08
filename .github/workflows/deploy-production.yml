@@ -1,0 +1,51 @@
+name: Deploy Production (DigitalOcean)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy ke Droplet via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: AUTH_SECRET
+          script_stop: true
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+            cd /opt/latihan-cbt
+            git pull origin main
+            bash deploy/remote-deploy.sh
+
+      - name: Verifikasi publik (HTTP)
+        run: |
+          set -euo pipefail
+          HOST='${{ secrets.DEPLOY_HOST }}'
+          echo ">> GET http://${HOST}/login"
+          curl -fsS -o /dev/null -w "login page: %{http_code}\n" "http://${HOST}/login"
+          echo ">> POST login API"
+          headers=$(curl -s -D - -o /dev/null -X POST "http://${HOST}/api/auth/login" \
+            -H "Content-Type: application/json" \
+            -d '{"nomorPeserta":"1234567890","password":"password"}')
+          echo "$headers" | grep -i '^HTTP'
+          cookie=$(echo "$headers" | grep -i '^set-cookie:' || true)
+          echo "$cookie"
+          if echo "$cookie" | grep -qi '; Secure'; then
+            echo "ERROR: cookie masih Secure pada HTTP"
+            exit 1
+          fi
+          echo "OK: deploy terverifikasi"
