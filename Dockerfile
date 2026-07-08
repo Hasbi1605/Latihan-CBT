@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-cert
 
 FROM base AS deps
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
