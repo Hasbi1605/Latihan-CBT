@@ -36,14 +36,13 @@ export async function POST(req: Request) {
     nomorPeserta: user.nomorPeserta,
   });
 
-  const store = await cookies();
-  store.set(SESSION_COOKIE, token, sessionCookieOptions(req));
-
-  return NextResponse.json({
+  const res = NextResponse.json({
     user: {
       nama: user.nama,
       nomorPeserta: user.nomorPeserta,
       role: user.role,
     },
   });
+  res.headers.set("Set-Cookie", sessionCookieHeader(token, req));
+  return res;
 }
