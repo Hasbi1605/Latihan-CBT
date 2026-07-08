@@ -50,18 +50,21 @@ type Attempt = {
 
 function modeLabel(mode: string) {
   if (mode === "REPLIKA_2026") return "Replika 2026";
+  if (mode === "LATIHAN_INTENSIF") return "Intensif";
   if (mode === "LATIHAN_LENGKAP") return "Latihan + BTQ";
   return mode;
 }
 
-function modeBadgeTone(mode: string): "success" | "violet" | "default" {
+function modeBadgeTone(mode: string): "success" | "violet" | "default" | "warning" {
   if (mode === "REPLIKA_2026") return "success";
+  if (mode === "LATIHAN_INTENSIF") return "warning";
   if (mode === "LATIHAN_LENGKAP") return "violet";
   return "default";
 }
 
 function tokenHint(mode: string) {
   if (mode === "LATIHAN_LENGKAP") return "LATIHANBTQ";
+  if (mode === "LATIHAN_INTENSIF") return "INTENSIF";
   return "UINSSC2026";
 }
 
@@ -81,9 +84,9 @@ export default function DashboardClient({ nama }: { nama: string }) {
   const [token, setToken] = useState("");
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [modeFilter, setModeFilter] = useState<"ALL" | "REPLIKA_2026" | "LATIHAN_LENGKAP">(
-    "ALL",
-  );
+  const [modeFilter, setModeFilter] = useState<
+    "ALL" | "REPLIKA_2026" | "LATIHAN_INTENSIF" | "LATIHAN_LENGKAP"
+  >("ALL");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -177,6 +180,14 @@ export default function DashboardClient({ nama }: { nama: string }) {
         </CardBody>
       </Card>
 
+      <Alert tone="info">
+        <p className="font-semibold">Soal latihan — bukan soal resmi SPMB</p>
+        <p className="mt-1 text-[var(--foreground)]/80">
+          Bank soal dikurasi bergaya UM-PTKIN untuk latihan. Bukan soal resmi SPMB UIN Siber
+          Cirebon. Setiap percobaan mengacak subset dari bank (~100 soal per subtes).
+        </p>
+      </Alert>
+
       <section>
         <PageHeader
           eyebrow="Simulasi"
@@ -189,6 +200,7 @@ export default function DashboardClient({ nama }: { nama: string }) {
               options={[
                 { value: "ALL", label: "Semua" },
                 { value: "REPLIKA_2026", label: "Replika" },
+                { value: "LATIHAN_INTENSIF", label: "Intensif" },
                 { value: "LATIHAN_LENGKAP", label: "Lengkap+BTQ" },
               ]}
             />

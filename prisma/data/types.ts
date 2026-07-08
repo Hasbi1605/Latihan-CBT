@@ -5,6 +5,7 @@ export type SeedQuestion = {
   teks: string;
   tipe?: "PG" | "REKAMAN";
   arahTeks?: "LTR" | "RTL";
+  gambarUrl?: string;
   tingkat?: "MUDAH" | "SEDANG" | "SULIT";
   pembahasan: string;
   opsi?: SeedOption[];

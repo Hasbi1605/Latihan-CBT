@@ -2,24 +2,28 @@
  * Audit struktural bank soal seed (prisma/data/*.ts).
  * Jalankan: npm run audit:questions
  */
-import { tpaQuestions } from "../prisma/data/tpa";
-import { bahasaQuestions } from "../prisma/data/bahasa";
-import { keislamanQuestions } from "../prisma/data/keislaman";
-import { btqQuestions } from "../prisma/data/btq";
+import {
+  tpaQuestions,
+  bahasaQuestions,
+  keislamanQuestions,
+  btqQuestions,
+  BANK_STATS,
+} from "../prisma/data/index";
 
 type SeedQ = {
   subkategori: string;
   teks: string;
   tipe?: "PG" | "REKAMAN";
+  gambarUrl?: string;
   pembahasan: string;
   opsi?: Array<{ teks: string; benar?: boolean }>;
 };
 
-const BANKS: Array<{ kode: string; items: SeedQ[] }> = [
-  { kode: "TPA", items: tpaQuestions },
-  { kode: "BAHASA", items: bahasaQuestions },
-  { kode: "KEISLAMAN", items: keislamanQuestions },
-  { kode: "BTQ", items: btqQuestions },
+const BANKS: Array<{ kode: string; items: SeedQ[]; min: number }> = [
+  { kode: "TPA", items: tpaQuestions, min: 90 },
+  { kode: "BAHASA", items: bahasaQuestions, min: 90 },
+  { kode: "KEISLAMAN", items: keislamanQuestions, min: 90 },
+  { kode: "BTQ", items: btqQuestions, min: 10 },
 ];
 
 const errors: string[] = [];
@@ -58,8 +62,21 @@ function auditQuestion(bank: string, index: number, q: SeedQ) {
   }
 }
 
-for (const { kode, items } of BANKS) {
+for (const { kode, items, min } of BANKS) {
+  if (items.length < min) {
+    errors.push(`${kode}: minimal ${min} soal, ditemukan ${items.length}`);
+  }
   items.forEach((q, i) => auditQuestion(kode, i, q));
+}
+
+const figural = tpaQuestions.filter((q) => q.subkategori?.includes("Figural"));
+if (figural.length < 5) {
+  errors.push(`TPA figural: minimal 5 soal, ditemukan ${figural.length}`);
+}
+for (const q of figural) {
+  if (!q.gambarUrl?.startsWith("/images/tpa/figural/")) {
+    errors.push(`TPA figural tanpa gambarUrl valid: ${q.subkategori}`);
+  }
 }
 
 const btqNunBa = btqQuestions.find((q) => q.subkategori === "Tajwid - Nun Mati/Tanwin");
@@ -81,7 +98,7 @@ if (btqIdgham) {
   }
 }
 
-const total = BANKS.reduce((n, b) => n + b.items.length, 0);
+const total = BANK_STATS.total;
 const pg = BANKS.reduce(
   (n, b) => n + b.items.filter((q) => (q.tipe ?? "PG") === "PG").length,
   0,
@@ -89,6 +106,10 @@ const pg = BANKS.reduce(
 
 console.log("=== Audit Bank Soal ===\n");
 console.log(`Total soal : ${total}`);
+console.log(`TPA        : ${BANK_STATS.tpa} (figural ${figural.length})`);
+console.log(`BAHASA     : ${BANK_STATS.bahasa}`);
+console.log(`KEISLAMAN  : ${BANK_STATS.keislaman}`);
+console.log(`BTQ        : ${BANK_STATS.btq}`);
 console.log(`PG         : ${pg}`);
 console.log(`Rekaman    : ${total - pg}`);
 

@@ -60,7 +60,7 @@ Buka http://localhost:3000
 | `npm run dev`        | Server pengembangan                               |
 | `npm run build`      | Build produksi                                    |
 | `npm run start`      | Jalankan hasil build                              |
-| `npm run test:e2e`   | Tes API end-to-end (butuh server jalan)           |
+| `npm run audit:questions` | Validasi struktural bank soal seed |
 | `npm run db:migrate` | Migrasi Prisma                                    |
 | `npm run db:seed`    | Isi ulang data awal                               |
 | `npm run db:reset`   | Reset database                                    |
