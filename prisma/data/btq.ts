@@ -16,21 +16,22 @@ export const btqQuestions: Array<{
     tingkat: "SEDANG",
     tipe: "PG",
     pembahasan:
-      "Nun mati/tanwin + ba → Izhar (dibaca jelas). Contoh: min ba'di → minba'di (tanpa idgham/ghunnah).",
+      "Nun mati/tanwin + ba → Iqlab (nun dibaca menjadi mim dengan dengung). Contoh: min ba'di → mimba'di.",
     opsi: [
       { teks: "Idgham" },
-      { teks: "Iqlab" },
-      { teks: "Izhar", benar: true },
+      { teks: "Iqlab", benar: true },
+      { teks: "Izhar" },
       { teks: "Ikhfa" },
       { teks: "Qalqalah" },
     ],
   },
   {
     subkategori: "Tajwid - Idgham",
-    teks: "Huruf-huruf idgham bila gunnah (yaitu lam, ra, mim, wa, nun) berjumlah ...",
+    teks: "Huruf-huruf idgham bighunnah (dengung) pada nun mati/tanwin berjumlah ...",
     tingkat: "SEDANG",
     tipe: "PG",
-    pembahasan: "Huruf idgham bila ghunnah ada 4: ل ر م و (lam, ra, mim, waw).",
+    pembahasan:
+      "Idgham bighunnah ada 4 huruf: ي ن م و (ya, nun, mim, waw). Mnemonik: يَرْمُلُون.",
     opsi: [
       { teks: "2 huruf" },
       { teks: "4 huruf", benar: true },
