@@ -23,6 +23,24 @@ function secretKey() {
 
 export const SESSION_COOKIE = "cbt_session";
 
+/** Secure cookie hanya jika request HTTPS (via X-Forwarded-Proto dari reverse proxy). */
+export function sessionCookieSecure(req: Request): boolean {
+  if (process.env.COOKIE_SECURE === "false") return false;
+  if (process.env.COOKIE_SECURE === "true") return true;
+  const proto = req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  return proto === "https";
+}
+
+export function sessionCookieOptions(req: Request) {
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: sessionCookieSecure(req),
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  };
+}
+
 export type SessionRole = "PESERTA" | "ADMIN";
 
 export type SessionPayload = {

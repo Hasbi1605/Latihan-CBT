@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth";
-import { SESSION_COOKIE, createSessionToken } from "@/lib/session";
+import { SESSION_COOKIE, createSessionToken, sessionCookieOptions } from "@/lib/session";
 
 export async function POST(req: Request) {
   let body: { nomorPeserta?: string; password?: string };
