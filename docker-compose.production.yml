@@ -1,0 +1,17 @@
+services:
+  cbt:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NODE_ENV: production
+      AUTH_SECRET: ${AUTH_SECRET}
+      DATABASE_URL: file:./prod.db
+    volumes:
+      - cbt-prisma:/app/prisma
+      - cbt-uploads:/app/uploads
+
+volumes:
+  cbt-prisma:
+  cbt-uploads:
