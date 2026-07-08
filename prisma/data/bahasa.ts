@@ -13,9 +13,9 @@ export const bahasaQuestions: SeedQuestion[] = [
     opsi: [
       { teks: "Resiko" },
       { teks: "Risiko", benar: true },
-      { teks: "Resico" },
+      { teks: "Praktek" },
+      { teks: "Apotik" },
       { teks: "Risico" },
-      { teks: " Risik" },
     ],
   },
   {
@@ -72,8 +72,8 @@ export const bahasaQuestions: SeedQuestion[] = [
       { teks: "kami berlibur ke cirebon pada hari senin." },
       { teks: "Kami berlibur ke Cirebon pada hari Senin.", benar: true },
       { teks: "Kami Berlibur ke Cirebon pada Hari Senin." },
-      { teks: "kami berlibur ke Cirebon pada Hari senin." },
-      { teks: "Kami berlibur ke cirebon pada hari Senin." },
+      { teks: "Kami berlibur ke bandung pada hari selasa." },
+      { teks: "Kami berlibur ke Cirebon pada Hari Senin." },
     ],
   },
   {
