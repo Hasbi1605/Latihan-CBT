@@ -155,6 +155,25 @@ function RecordingPanel({
   );
 }
 
+function navCellClass(x: Question, isCur: boolean) {
+  if (x.ragu) {
+    return cn(
+      "border-2 border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning)]",
+      isCur && "ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--card)]",
+    );
+  }
+  if (isAnswered(x)) {
+    return cn(
+      "border-2 border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success)]",
+      isCur && "ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--card)]",
+    );
+  }
+  return cn(
+    "border border-[var(--exam-option-border)] bg-[var(--exam-option)] text-[var(--foreground)]",
+    isCur && "ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--card)]",
+  );
+}
+
 export default function ExamRunner({ attemptId }: { attemptId: string }) {
   const router = useRouter();
   const [state, setState] = useState<State | null>(null);
@@ -480,15 +499,15 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
           <h3 className="text-sm font-semibold text-[var(--foreground)]">Navigasi Soal</h3>
           <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--muted-foreground)]">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded bg-[var(--success)]" />
+              <span className="inline-block h-3 w-3 rounded border-2 border-[var(--success-border)] bg-[var(--success-soft)]" />
               Terjawab
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded bg-[var(--warning)]" />
+              <span className="inline-block h-3 w-3 rounded border-2 border-[var(--warning-border)] bg-[var(--warning-soft)]" />
               Ragu
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded border border-[var(--border)] bg-[var(--exam-option)]" />
+              <span className="inline-block h-3 w-3 rounded border border-[var(--exam-option-border)] bg-[var(--exam-option)]" />
               Kosong
             </span>
           </div>
@@ -496,20 +515,14 @@ export default function ExamRunner({ attemptId }: { attemptId: string }) {
           <div className="mt-4 grid grid-cols-6 gap-2 lg:grid-cols-5">
             {active.questions.map((x, i) => {
               const isCur = i === idx;
-              let cls =
-                "border border-[var(--exam-option-border)] bg-[var(--exam-option)] text-[var(--foreground)]";
-              if (x.ragu) cls = "border-[var(--warning)] bg-[var(--warning)] text-white";
-              else if (isAnswered(x))
-                cls = "border-[var(--success)] bg-[var(--success)] text-white";
               return (
                 <button
                   key={x.answerId}
                   type="button"
                   onClick={() => setIdx(i)}
                   className={cn(
-                    "h-9 rounded-lg text-sm font-semibold transition",
-                    cls,
-                    isCur && "ring-2 ring-[var(--foreground)] ring-offset-2 ring-offset-[var(--card)]",
+                    "h-9 rounded-lg text-sm font-bold tabular-nums transition",
+                    navCellClass(x, isCur),
                   )}
                 >
                   {x.urutan}
