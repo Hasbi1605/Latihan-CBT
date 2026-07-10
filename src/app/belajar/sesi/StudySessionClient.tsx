@@ -345,17 +345,17 @@ export default function StudySessionClient({
                       return (
                         <div
                           key={o.label}
-                          className="flex items-start gap-3 rounded-2xl border border-[var(--success-border)] bg-[var(--success-soft)] px-4 py-3"
+                          className="rounded-2xl border border-[var(--success-border)] bg-[var(--success-soft)] px-4 py-3"
                         >
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--success)] text-sm font-bold text-white">
-                            {o.label}
-                          </span>
-                          <span
-                            className={cn("pt-1 text-base font-medium", ar && "arabic")}
+                          <p
+                            className={cn(
+                              "text-lg font-semibold text-[var(--foreground)] sm:text-xl",
+                              ar && "arabic",
+                            )}
                             dir={ar ? "rtl" : "ltr"}
                           >
                             {o.teks}
-                          </span>
+                          </p>
                         </div>
                       );
                     })}
