@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/ujian", "/hasil", "/admin"];
+const PROTECTED_PREFIXES = ["/dashboard", "/ujian", "/hasil", "/admin", "/belajar"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -43,5 +43,6 @@ export const config = {
     "/ujian/:path*",
     "/hasil/:path*",
     "/admin/:path*",
+    "/belajar/:path*",
   ],
 };

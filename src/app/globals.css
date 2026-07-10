@@ -131,6 +131,51 @@ html.dark .glass-panel {
   border-color: rgb(255 255 255 / 0.08);
 }
 
+/* Mode belajar — kartu tanya jawab */
+.study-glow::before {
+  content: "";
+  position: absolute;
+  inset: 12% 8% auto;
+  height: 55%;
+  border-radius: 999px;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--primary) 22%, transparent),
+    transparent 70%
+  );
+  filter: blur(28px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.study-card {
+  position: relative;
+  z-index: 1;
+  animation: study-card-in 0.35s ease-out;
+}
+
+.study-card-flipped {
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-card-hover);
+}
+
+@keyframes study-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .study-card {
+    animation: none;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;
