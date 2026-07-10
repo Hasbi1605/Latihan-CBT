@@ -11,6 +11,7 @@ import {
   Layers,
   Play,
   Sparkles,
+  SquareStack,
 } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
@@ -142,6 +143,18 @@ export default function DashboardClient({ nama }: { nama: string }) {
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
+              href="/belajar"
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition",
+                buttonVariants.secondary,
+                buttonSizes.sm,
+                "!border-white/20 !bg-white/10 !text-white hover:!bg-white/20",
+              )}
+            >
+              <SquareStack className="h-4 w-4" />
+              Mode Belajar
+            </Link>
+            <Link
               href="/dashboard/kartu-ujian"
               className={cn(
                 "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition",
@@ -187,6 +200,33 @@ export default function DashboardClient({ nama }: { nama: string }) {
           Cirebon. Setiap percobaan mengacak subset dari bank (~100 soal per subtes).
         </p>
       </Alert>
+
+      <Card hover className="overflow-hidden">
+        <CardBody className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)]">
+              <SquareStack className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="font-bold">Mode Belajar — Kartu Tanya Jawab</p>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                Latih soal tanpa timer. Balik kartu, baca pembahasan, tandai yang sudah paham.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/belajar"
+            className={cn(
+              "inline-flex shrink-0 items-center justify-center gap-2 rounded-xl font-semibold transition",
+              buttonVariants.primary,
+              buttonSizes.md,
+            )}
+          >
+            <Play className="h-4 w-4" />
+            Mulai belajar
+          </Link>
+        </CardBody>
+      </Card>
 
       <section>
         <PageHeader
